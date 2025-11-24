@@ -5,19 +5,22 @@ const ConsumptionReport = () => {
   const [title, setTitle] = useState('OFFER AUTO');
   const [seedsInput, setSeedsInput] = useState('99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99');
   const [activeInput, setActiveInput] = useState('80\n97\n83\n91\n99\n99\n99\n99\n94\n96\n98\n98\n96\n97\n98');
-  const [sessionsOutInput, setSessionsOutInput] = useState('All sessions completed successfully with no issues reported during the campaign period.');
+  const [sessionsOutInput, setSessionsOutInput] = useState('0');
   const [tableData, setTableData] = useState([]);
   const [totals, setTotals] = useState({ seeds: 0, active: 0, blocked: 0 });
   const [isSending, setIsSending] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedCMH, setSelectedCMH] = useState('cmh1');
   const [todayFiles, setTodayFiles] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
   // Available titles
   const availableTitles = ['IP', 'IP2', 'OFFER AUTO', 'OFFER BY REQUEST'];
 
+  // generateTableAndChart is stable for our usage here; we intentionally run it once on mount.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     generateTableAndChart();
     fetchTodayFiles();
@@ -255,6 +258,26 @@ const sendToTelegram = async () => {
     }
   };
 
+  const deleteFile = async (fileName) => {
+    if (!window.confirm('Are you sure you want to delete this file? This cannot be undone.')) return;
+    try {
+      const response = await fetch(`http://localhost:5000/api/files/${encodeURIComponent(fileName)}`, {
+        method: 'DELETE'
+      });
+      const result = await response.json();
+      if (response.ok) {
+        alert('File deleted');
+        fetchTodayFiles();
+        if (selectedFile && selectedFile.fileName === fileName) setSelectedFile(null);
+      } else {
+        alert('Failed to delete file: ' + (result.error || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      alert('Error deleting file');
+    }
+  };
+
   return (
     <section id="consumption-section" className="content-section active">
       <div className="dashboard-container">
@@ -288,7 +311,10 @@ const sendToTelegram = async () => {
                   alignItems: 'center',
                   gap: '8px'
                 }}>
-                  <span style={{ fontWeight: '600' }}>{file.title}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: '700' }}>{file.cmhName}</span>
+                    <span style={{ fontSize: '12px', color: '#495057' }}>{file.title}</span>
+                  </div>
                   <button 
                     onClick={() => downloadFile(file.fileName)}
                     style={{
@@ -303,8 +329,58 @@ const sendToTelegram = async () => {
                   >
                     Download
                   </button>
+                  <button
+                    onClick={() => setSelectedFile(file)}
+                    style={{
+                      background: '#0069d9',
+                      color: 'white',
+                      border: 'none',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Preview
+                  </button>
+                  <button
+                    onClick={() => deleteFile(file.fileName)}
+                    style={{
+                      background: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               ))}
+            </div>
+          )}
+          {/* Preview area for selected file */}
+          {selectedFile && (
+            <div style={{ marginTop: '12px', border: '1px solid #e1e5e9', borderRadius: '6px', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#f1f3f5' }}>
+                <div>
+                  <strong>{selectedFile.cmhName}</strong>
+                  <div style={{ fontSize: '12px', color: '#495057' }}>{selectedFile.title}</div>
+                </div>
+                <div>
+                  <button onClick={() => setSelectedFile(null)} style={{ marginRight: '8px' }}>Close</button>
+                  <a href={`http://localhost:5000${selectedFile.viewUrl}`} target="_blank" rel="noreferrer">
+                    <button>Open in new tab</button>
+                  </a>
+                </div>
+              </div>
+              <iframe
+                title={`preview-${selectedFile.fileName}`}
+                src={`http://localhost:5000${selectedFile.viewUrl}`}
+                style={{ width: '100%', height: '400px', border: 'none' }}
+              />
             </div>
           )}
         </div>

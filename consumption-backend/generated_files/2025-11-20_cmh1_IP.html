@@ -1,0 +1,865 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMH 1 - IP - Consumption Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+  }
+  
+  body { 
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+    color: #e2e8f0; 
+    line-height: 1.6; 
+    padding: 20px; 
+    font-size: 14px; 
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  
+  .container { 
+    display: grid; 
+    grid-template-columns: 35% 65%;
+    grid-template-rows: auto 1fr auto;
+    gap: 20px; 
+    height: 100vh;
+    max-height: 100vh;
+    animation: fadeIn 0.8s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .header { 
+    grid-column: 1 / -1; 
+    text-align: center; 
+    padding: 20px; 
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+    border-radius: 16px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: slideDown 0.8s ease-out;
+  }
+  
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .cmh-badge { 
+    background: rgba(255, 255, 255, 0.2); 
+    color: white; 
+    padding: 8px 16px; 
+    border-radius: 20px; 
+    font-size: 0.75rem; 
+    margin-bottom: 8px; 
+    display: inline-block; 
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    animation: bounceIn 0.6s ease-out;
+  }
+  
+  @keyframes bounceIn {
+    0% { opacity: 0; transform: scale(0.3); }
+    50% { transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  
+  .title { 
+    font-size: 2rem; 
+    font-weight: 700; 
+    margin-bottom: 8px; 
+    background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: textGlow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes textGlow {
+    from { text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+    to { text-shadow: 0 0 30px rgba(255,255,255,0.8); }
+  }
+  
+  .subtitle { 
+    color: rgba(255, 255, 255, 0.8); 
+    font-size: 0.9rem; 
+    font-weight: 400;
+  }
+  
+  .left-panel { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+  }
+  
+  .stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .stats-panel { 
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 16px; 
+    padding: 24px; 
+    border: 1px solid #475569; 
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    animation: slideInLeft 0.8s ease-out 0.2s both;
+  }
+  
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .stat-item { 
+    margin-bottom: 16px; 
+    padding: 12px 0; 
+    border-bottom: 1px solid #475569; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    transition: all 0.3s ease;
+  }
+  
+  .stat-item:hover {
+    transform: translateX(8px);
+    border-bottom-color: #6366f1;
+  }
+  
+  .stat-item:last-child { 
+    margin-bottom: 0; 
+    border-bottom: none; 
+  }
+  
+  .stat-value { 
+    font-weight: 700; 
+    color: #06b6d4; 
+    font-size: 1.1rem; 
+    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .diagram-container { 
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 16px; 
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); 
+    padding: 24px; 
+    border: 1px solid #475569; 
+    display: flex; 
+    flex-direction: column; 
+    backdrop-filter: blur(10px);
+    animation: slideInLeft 0.8s ease-out 0.6s both;
+    height: fit-content;
+  }
+  
+  .diagram-title { 
+    font-size: 1.1rem; 
+    font-weight: 600; 
+    margin-bottom: 20px; 
+    color: #f8fafc; 
+    text-align: center; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .chart-container { 
+    position: relative; 
+    width: 180px; 
+    height: 180px; 
+    margin: 0 auto; 
+  }
+  
+  .pie-chart { 
+    width: 100%; 
+    height: 100%; 
+    position: relative; 
+    border-radius: 50%; 
+    background: conic-gradient( 
+      #10b981 0% 96%, 
+      #ef4444 96% 100% 
+    ); 
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); 
+    animation: rotate 2s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+               glow 2s ease-in-out infinite alternate;
+    transform: rotate(-90deg);
+    transition: all 0.3s ease;
+  }
+  
+  .pie-chart:hover {
+    transform: rotate(-90deg) scale(1.05);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  }
+  
+  @keyframes rotate {
+    0% { 
+      transform: rotate(-90deg) scale(0);
+      opacity: 0;
+    }
+    70% { 
+      transform: rotate(-90deg) scale(1.1);
+    }
+    100% { 
+      transform: rotate(-90deg) scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes glow {
+    from { 
+      filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
+    }
+    to { 
+      filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.6));
+    }
+  }
+  
+  .chart-center { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    width: 80px; 
+    height: 80px; 
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 50%; 
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 10; 
+    border: 2px solid #475569;
+    animation: popIn 1s ease-out 1s both;
+  }
+  
+  @keyframes popIn {
+    0% { 
+      opacity: 0; 
+      transform: translate(-50%, -50%) scale(0);
+    }
+    70% { 
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    100% { 
+      opacity: 1; 
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  
+  .total-count { 
+    font-size: 1.4rem; 
+    font-weight: 800; 
+    color: #06b6d4; 
+    line-height: 1; 
+    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .total-label { 
+    font-size: 0.7rem; 
+    color: #94a3b8; 
+    margin-top: 4px; 
+    font-weight: 500;
+  }
+  
+  .diagram-legend { 
+    margin-top: 24px; 
+  }
+  
+  .legend-item { 
+    display: flex; 
+    align-items: center; 
+    margin-bottom: 12px; 
+    padding: 12px; 
+    border-radius: 12px; 
+    background: rgba(30, 41, 59, 0.8); 
+    border: 1px solid #475569; 
+    transition: all 0.3s ease;
+    animation: slideInUp 0.6s ease-out;
+    animation-fill-mode: both;
+  }
+  
+  .legend-item:hover {
+    transform: translateX(8px);
+    border-color: #6366f1;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+  }
+  
+  .legend-item:nth-child(1) { animation-delay: 1.2s; }
+  .legend-item:nth-child(2) { animation-delay: 1.4s; }
+  
+  @keyframes slideInUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  
+  .legend-color { 
+    width: 12px; 
+    height: 12px; 
+    border-radius: 50%; 
+    margin-right: 12px; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); 
+    flex-shrink: 0;
+  }
+  
+  .legend-label { 
+    flex: 1; 
+    font-size: 0.8rem; 
+    font-weight: 500; 
+    color: #e2e8f0;
+  }
+  
+  .legend-percentage { 
+    font-weight: 700; 
+    color: #06b6d4; 
+    margin-left: 8px; 
+    font-size: 0.8rem; 
+  }
+  
+  .legend-count { 
+    font-size: 0.75rem; 
+    color: #94a3b8; 
+    margin-left: 4px; 
+  }
+  
+  .table-container { 
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 16px; 
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); 
+    padding: 24px; 
+    border: 1px solid #475569; 
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    animation: slideInRight 0.8s ease-out 0.2s both;
+  }
+  
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  .table-header {
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #f8fafc;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .table-wrapper {
+    flex: 1;
+    overflow: auto;
+    border: 1px solid #475569;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(10px);
+  }
+  
+  table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    font-size: 0.85rem; 
+    min-width: 100%;
+  }
+  
+  th { 
+    padding: 16px 12px; 
+    text-align: center; 
+    border-bottom: 2px solid #475569; 
+    font-weight: 600; 
+    color: white; 
+    font-size: 0.8rem; 
+    position: sticky; 
+    top: 0; 
+    white-space: nowrap;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  th:nth-child(1) { 
+    border-radius: 12px 0 0 0;
+  }
+  
+  th:nth-child(4) { 
+    border-radius: 0 12px 0 0;
+  }
+  
+  td { 
+    padding: 14px 12px; 
+    border-bottom: 1px solid #334155; 
+    font-size: 0.8rem; 
+    white-space: nowrap;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  tr {
+    animation: fadeInRow 0.6s ease-out;
+    animation-fill-mode: both;
+  }
+  
+  tr:nth-child(1) { animation-delay: 0.3s; }
+  tr:nth-child(2) { animation-delay: 0.4s; }
+  tr:nth-child(3) { animation-delay: 0.5s; }
+  tr:nth-child(4) { animation-delay: 0.6s; }
+  tr:nth-child(5) { animation-delay: 0.7s; }
+  
+  @keyframes fadeInRow {
+    from { 
+      opacity: 0; 
+      transform: translateY(10px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  
+  tr:nth-child(even) {
+    background-color: rgba(30, 41, 59, 0.4);
+  }
+  
+  tr:hover {
+    background-color: rgba(99, 102, 241, 0.1);
+    transform: scale(1.02);
+  }
+  
+  tr:hover td {
+    color: #f8fafc;
+  }
+  
+  td:nth-child(1) {
+    font-weight: 600;
+    color: #06b6d4;
+  }
+  
+  td:nth-child(2) {
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+  
+  td:nth-child(3) {
+    background: rgba(16, 185, 129, 0.1);
+    font-weight: 600;
+    color: #10b981;
+  }
+  
+  td:nth-child(4) {
+    background: rgba(239, 68, 68, 0.1);
+    font-weight: 600;
+    color: #ef4444;
+  }
+  
+  .totals-row { 
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); 
+    font-weight: 600; 
+    position: sticky; 
+    bottom: 0; 
+    color: white;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.9; }
+  }
+  
+  .totals-row td {
+    border-bottom: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  footer { 
+    grid-column: 1 / -1; 
+    text-align: center; 
+    padding: 16px; 
+    color: #94a3b8; 
+    border-top: 1px solid #475569; 
+    font-size: 0.75rem; 
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.8s ease-out 1s both;
+  }
+  
+  /* Custom scrollbar */
+  .table-wrapper::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 4px;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 4px;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="cmh-badge">CMH 1</div>
+      <h1 class="title">IP</h1>
+      <p class="subtitle">Consumption Report - Generated on 20/11/2025</p>
+    </div>
+    
+    <div class="left-panel">
+      <div class="stats-container">
+        <div class="stats-panel">
+          <div class="stat-item"><span>Total Consumption: </span><span class="stat-value">2970</span></div>
+          <div class="stat-item"><span>Total Seeds Active: </span><span class="stat-value">2848</span></div>
+          <div class="stat-item"><span>Total Seeds Blocked: </span><span class="stat-value">122</span></div>
+          div class="stat-item"><span>SESSIONS OUT: </span><span class="stat-value"> All sessions completed successfully with no issues reported during the campaign period.</span></div>
+        </div>
+      </div>
+      
+      <div class="diagram-container">
+        <h3 class="diagram-title">Consumption Overview</h3>
+        <div class="chart-container">
+          <div class="pie-chart">
+            <div class="chart-center">
+              <div class="total-count">2970</div>
+              <div class="total-label">Total Seeds</div>
+            </div>
+          </div>
+        </div>
+        <div class="diagram-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #10b981;"></div>
+            <span class="legend-label">Active Seeds</span>
+            <span class="legend-percentage">96%</span>
+            <span class="legend-count">(2848)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #ef4444;"></div>
+            <span class="legend-label">Blocked Seeds</span>
+            <span class="legend-percentage">4%</span>
+            <span class="legend-count">(122)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="table-container">
+      <div class="table-header">Detailed Consumption Data</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 15%">Drop N°</th>
+              <th style="width: 25%">Consumption Seeds</th>
+              <th style="width: 30%">Active/Drop</th>
+              <th style="width: 30%">Blocked</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+                <tr>
+                  <td>1</td>
+                  <td>99</td>
+                  <td>80</td>
+                  <td>19</td>
+                </tr>
+              
+                <tr>
+                  <td>2</td>
+                  <td>99</td>
+                  <td>97</td>
+                  <td>2</td>
+                </tr>
+              
+                <tr>
+                  <td>3</td>
+                  <td>99</td>
+                  <td>83</td>
+                  <td>16</td>
+                </tr>
+              
+                <tr>
+                  <td>4</td>
+                  <td>99</td>
+                  <td>91</td>
+                  <td>8</td>
+                </tr>
+              
+                <tr>
+                  <td>5</td>
+                  <td>99</td>
+                  <td>99</td>
+                  <td>0</td>
+                </tr>
+              
+                <tr>
+                  <td>6</td>
+                  <td>99</td>
+                  <td>99</td>
+                  <td>0</td>
+                </tr>
+              
+                <tr>
+                  <td>7</td>
+                  <td>99</td>
+                  <td>99</td>
+                  <td>0</td>
+                </tr>
+              
+                <tr>
+                  <td>8</td>
+                  <td>99</td>
+                  <td>99</td>
+                  <td>0</td>
+                </tr>
+              
+                <tr>
+                  <td>9</td>
+                  <td>99</td>
+                  <td>94</td>
+                  <td>5</td>
+                </tr>
+              
+                <tr>
+                  <td>10</td>
+                  <td>99</td>
+                  <td>96</td>
+                  <td>3</td>
+                </tr>
+              
+                <tr>
+                  <td>11</td>
+                  <td>99</td>
+                  <td>98</td>
+                  <td>1</td>
+                </tr>
+              
+                <tr>
+                  <td>12</td>
+                  <td>99</td>
+                  <td>98</td>
+                  <td>1</td>
+                </tr>
+              
+                <tr>
+                  <td>13</td>
+                  <td>99</td>
+                  <td>96</td>
+                  <td>3</td>
+                </tr>
+              
+                <tr>
+                  <td>14</td>
+                  <td>99</td>
+                  <td>97</td>
+                  <td>2</td>
+                </tr>
+              
+                <tr>
+                  <td>15</td>
+                  <td>99</td>
+                  <td>98</td>
+                  <td>1</td>
+                </tr>
+              
+                <tr>
+                  <td>16</td>
+                  <td>99</td>
+                  <td>80</td>
+                  <td>19</td>
+                </tr>
+              
+                <tr>
+                  <td>17</td>
+                  <td>99</td>
+                  <td>97</td>
+                  <td>2</td>
+                </tr>
+              
+                <tr>
+                  <td>18</td>
+                  <td>99</td>
+                  <td>83</td>
+                  <td>16</td>
+                </tr>
+              
+                <tr>
+                  <td>19</td>
+                  <td>99</td>
+                  <td>91</td>
+                  <td>8</td>
+                </tr>
+              
+                <tr>
+                  <td>20</td>
+                  <td>99</td>
+                  <td>99</td>
+                  <td>0</td>
+                </tr>
+              
+                <tr>
+                  <td>21</td>
+                  <td>99</td>
+                  <td>99</td>
+                  <td>0</td>
+                </tr>
+              
+                <tr>
+                  <td>22</td>
+                  <td>99</td>
+                  <td>99</td>
+                  <td>0</td>
+                </tr>
+              
+                <tr>
+                  <td>23</td>
+                  <td>99</td>
+                  <td>99</td>
+                  <td>0</td>
+                </tr>
+              
+                <tr>
+                  <td>24</td>
+                  <td>99</td>
+                  <td>94</td>
+                  <td>5</td>
+                </tr>
+              
+                <tr>
+                  <td>25</td>
+                  <td>99</td>
+                  <td>96</td>
+                  <td>3</td>
+                </tr>
+              
+                <tr>
+                  <td>26</td>
+                  <td>99</td>
+                  <td>98</td>
+                  <td>1</td>
+                </tr>
+              
+                <tr>
+                  <td>27</td>
+                  <td>99</td>
+                  <td>98</td>
+                  <td>1</td>
+                </tr>
+              
+                <tr>
+                  <td>28</td>
+                  <td>99</td>
+                  <td>96</td>
+                  <td>3</td>
+                </tr>
+              
+                <tr>
+                  <td>29</td>
+                  <td>99</td>
+                  <td>97</td>
+                  <td>2</td>
+                </tr>
+              
+                <tr>
+                  <td>30</td>
+                  <td>99</td>
+                  <td>98</td>
+                  <td>1</td>
+                </tr>
+              
+            <tr class="totals-row">
+              <td colspan="2">TOTAL: 2970</td>
+              <td>ACTIVE: 2848</td>
+              <td>BLOCKED: 122</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <footer>
+      <p>CMHW - CMH 1 | Generated on 20/11/2025, 13:15:54 | Professional Analytics Dashboard</p>
+    </footer>
+  </div>
+
+  <script>
+    // Additional animations
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animate stats on hover
+      const stats = document.querySelectorAll('.stat-item');
+      stats.forEach(stat => {
+        stat.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateX(10px)';
+        });
+        stat.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateX(0)';
+        });
+      });
+      
+      // Chart hover effect
+      const chart = document.querySelector('.pie-chart');
+      if (chart) {
+        chart.addEventListener('mouseenter', function() {
+          this.style.transform = 'rotate(-90deg) scale(1.08)';
+        });
+        chart.addEventListener('mouseleave', function() {
+          this.style.transform = 'rotate(-90deg) scale(1)';
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+    

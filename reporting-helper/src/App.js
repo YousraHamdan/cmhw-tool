@@ -27,7 +27,6 @@ function App() {
       <div className="container">
         <header>
           <h1>Reporter helper</h1>
-          <p className="subtitle">simplify your work</p>
         </header>
 
         <Navbar activeTab={activeTab} onTabChange={setActiveTab} />

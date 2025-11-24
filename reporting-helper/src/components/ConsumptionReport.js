@@ -2,23 +2,36 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Chart } from 'chart.js/auto';
 
 const ConsumptionReport = () => {
-  const [title, setTitle] = useState('OFFER');
+  const [title, setTitle] = useState('OFFER AUTO');
   const [seedsInput, setSeedsInput] = useState('99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99');
   const [activeInput, setActiveInput] = useState('80\n97\n83\n91\n99\n99\n99\n99\n94\n96\n98\n98\n96\n97\n98');
   const [sessionsOutInput, setSessionsOutInput] = useState('All sessions completed successfully with no issues reported during the campaign period.');
   const [tableData, setTableData] = useState([]);
   const [totals, setTotals] = useState({ seeds: 0, active: 0, blocked: 0 });
   const [isSending, setIsSending] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedCMH, setSelectedCMH] = useState('cmh1');
+  const [todayFiles, setTodayFiles] = useState([]);
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
-  // Replace these with your actual bot token and chat ID
-  const BOT_TOKEN = "7798410444:AAE5jRUbMcXQ-ndZp8OUq14Vc27LeR_0BNQ";
-  const CHAT_ID = "-1002480536350"; // Replace with your channel username or chat ID
-  
+  // Available titles
+  const availableTitles = ['IP', 'IP2', 'OFFER AUTO', 'OFFER BY REQUEST'];
+
   useEffect(() => {
     generateTableAndChart();
+    fetchTodayFiles();
   }, []);
+
+  const fetchTodayFiles = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/files/today');
+      const files = await response.json();
+      setTodayFiles(files);
+    } catch (error) {
+      console.error('Failed to fetch today\'s files:', error);
+    }
+  };
 
   const parseInput = (input) => {
     return input.split('\n')
@@ -92,15 +105,15 @@ const ConsumptionReport = () => {
             {
               label: 'Seeds Active',
               data: activeData,
-              backgroundColor: 'rgba(33, 150, 243, 0.7)',
-              borderColor: 'rgba(33, 150, 243, 1)',
+              backgroundColor: 'rgba(107, 142, 35, 0.7)', 
+              borderColor: 'rgba(107, 142, 35, 1)',
               borderWidth: 1
             },
             {
               label: 'Seeds Blocked',
               data: blockedData,
-              backgroundColor: 'rgba(255, 99, 132, 0.7)',
-              borderColor: 'rgba(255, 99, 132, 1)',
+              backgroundColor:'rgba(128, 0, 32, 0.7)',  
+              borderColor: 'rgba(128, 0, 32, 1)',
               borderWidth: 1
             }
           ]
@@ -143,7 +156,7 @@ const ConsumptionReport = () => {
     setSeedsInput('');
     setActiveInput('');
     setSessionsOutInput('');
-    setTitle('OFFER');
+    setTitle('OFFER AUTO');
     setTableData([]);
     setTotals({ seeds: 0, active: 0, blocked: 0 });
     
@@ -153,367 +166,92 @@ const ConsumptionReport = () => {
     }
   };
 
-  const generateHTMLContent = () => {
-    const seedsValues = parseInput(seedsInput);
-    const activeValues = parseInput(activeInput);
-    
-    let totalSeeds = 0;
-    let totalActive = 0;
-    let totalBlocked = 0;
-    
-    seedsValues.forEach((seeds, i) => {
-      const seedsNum = parseInt(seeds) || 0;
-      const activeNum = parseInt(activeValues[i]) || 0;
-      const blockedNum = seedsNum - activeNum;
-      
-      totalSeeds += seedsNum;
-      totalActive += activeNum;
-      totalBlocked += blockedNum;
+const generateAndSaveFile = async () => {
+  if (!availableTitles.includes(title)) {
+    alert('Please select a valid title from the dropdown');
+    return;
+  }
+
+  setIsGenerating(true);
+  try {
+    const response = await fetch('http://localhost:5000/api/generate-file', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title,
+        seedsInput,
+        activeInput,
+        sessionsOutInput,
+        cmh: selectedCMH  // ← ADD THIS LINE
+      }),
     });
 
-    const activePercentage = Math.round((totalActive/totalSeeds)*100);
-    const blockedPercentage = Math.round((totalBlocked/totalSeeds)*100);
+    const result = await response.json();
 
-    return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title} - Consumption Report</title>
-<style>
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: #f5f7fa;
-    color: #2c3e50;
-    line-height: 1.6;
-    padding: 20px;
-  }
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .header {
-    text-align: center;
-    margin-bottom: 20px;
-    padding: 15px;
-    border-bottom: 2px solid #2196F3;
-  }
-  .title {
-    font-size: 1.6rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #2196F3, #00BCD4);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    margin-bottom: 8px;
-  }
-  .subtitle {
-    color: #7f8c8d;
-    font-size: 0.8rem;
-  }
-  .stats-panel {
-    background: rgba(33, 150, 243, 0.05);
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 16px;
-    border: 1px solid #e1e5e9;
-  }
-  .stat-item {
-    margin-bottom: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid #e1e5e9;
-    display: flex;
-    justify-content: space-between;
-  }
-  .stat-item:last-child {
-    border-bottom: none;
-  }
-  .stat-value {
-    font-weight: 700;
-    color: #2196F3;
-  }
-  .table-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    padding: 16px;
-    margin-bottom: 16px;
-    border: 1px solid #e1e5e9;
-    overflow-x: auto;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11.2px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  th {
-    background: linear-gradient(135deg, #2196F3, #1976D2);
-    padding: 12px 10px;
-    text-align: left;
-    border-bottom: 2px solid #e1e5e9;
-    font-weight: 600;
-    color: white;
-  }
-  td {
-    padding: 10px;
-    border-bottom: 1px solid #e1e5e9;
-  }
-  tr:last-child td {
-    border-bottom: none;
-  }
-  .totals-row {
-    background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(0, 188, 212, 0.1));
-    font-weight: 600;
-  }
-  .diagram-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    padding: 16px;
-    margin-bottom: 16px;
-    border: 1px solid #e1e5e9;
-    overflow-x: auto;
-  }
-  .diagram-title {
-    font-size: 0.96rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #2c3e50;
-  }
-  .chart-container {
-    position: relative;
-    width: 224px;
-    height: 224px;
-    margin: 0 auto;
-  }
-  .pie-chart {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    border-radius: 50%;
-    background: conic-gradient(
-      #2196F3 0% ${activePercentage}%,
-      #FF6B6B ${activePercentage}% 100%
-    );
-    box-shadow: 
-      0 8px 25px rgba(0, 0, 0, 0.1),
-      inset 0 0 30px rgba(255, 255, 255, 0.05);
-  }
-  .chart-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100px;
-    height: 100px;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border: 1px solid #e1e5e9;
-  }
-  .total-count {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #00BCD4;
-    line-height: 1;
-  }
-  .total-label {
-    font-size: 0.7rem;
-    color: #7f8c8d;
-    margin-top: 4px;
-  }
-  .diagram-legend {
-    margin-top: 16px;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    padding: 6px 10px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #e1e5e9;
-  }
-  .legend-color {
-    width: 13px;
-    height: 13px;
-    border-radius: 50%;
-    margin-right: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .legend-label {
-    flex: 1;
-    font-size: 10.4px;
-    font-weight: 500;
-  }
-  .legend-percentage {
-    font-weight: 700;
-    color: #00BCD4;
-    margin-left: 5px;
-    font-size: 10.4px;
-  }
-  .legend-count {
-    font-size: 8.8px;
-    color: #7f8c8d;
-    margin-left: 5px;
-  }
-  footer {
-    text-align: center;
-    margin-top: 24px;
-    padding: 12px;
-    color: #7f8c8d;
-    border-top: 1px solid #e1e5e9;
-  }
-</style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1 class="title">${title}</h1>
-      <p class="subtitle">Consumption Report - Generated on ${new Date().toLocaleDateString('en-GB')}</p>
-    </div>
-    
-    <div class="stats-panel">
-      <div class="stat-item">
-        <span>Total Consumption: </span>
-        <span class="stat-value">${totalSeeds}</span>
-      </div>
-      <div class="stat-item">
-        <span>Total Seeds Active: </span>
-        <span class="stat-value">${totalActive}</span>
-      </div>
-      <div class="stat-item">
-        <span>Total Seeds Blocked: </span>
-        <span class="stat-value">${totalBlocked}</span>
-      </div>
-    </div>
-    
-    <div class="diagram-container">
-      <h3 class="diagram-title">Consumption Overview</h3>
-      <div class="chart-container">
-        <div class="pie-chart">
-          <div class="chart-center">
-            <div class="total-count">${totalSeeds}</div>
-            <div class="total-label">Total</div>
-          </div>
-        </div>
-      </div>
-      <div class="diagram-legend">
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #2196F3;"></div>
-          <span class="legend-label">Active Seeds</span>
-          <span class="legend-percentage">${activePercentage}%</span>
-          <span class="legend-count">(${totalActive})</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-color" style="background-color: #FF6B6B;"></div>
-          <span class="legend-label">Blocked Seeds</span>
-          <span class="legend-percentage">${blockedPercentage}%</span>
-          <span class="legend-count">(${totalBlocked})</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="table-container">
-      <h3>Detailed Data</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Drop N°</th>
-            <th>CONSOMMATION SEEDS (ACTIVE+BLOCKED)</th>
-            <th>Nbr BOITES ACTIVE/DROP</th>
-            <th>Nbr BOITES BLOCKED</th>
-            <th>SESSIONS OUT</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${seedsValues.map((seeds, i) => {
-            const dropNumber = i + 1;
-            const active = parseInt(activeValues[i]) || 0;
-            const blocked = parseInt(seeds) - active;
-            return `
-              <tr>
-                <td>Drop N° ${dropNumber}</td>
-                <td>${seeds}</td>
-                <td>${active}</td>
-                <td>${blocked}</td>
-                <td>${sessionsOutInput}</td>
-              </tr>
-            `;
-          }).join('')}
-          <tr class="totals-row">
-            <td colspan="2">TOTAL CONSOMMATION: ${totalSeeds}</td>
-            <td>TOTAL SEEDS ACTIVE: ${totalActive}</td>
-            <td>TOTAL SEEDS BLOCKED: ${totalBlocked}</td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <footer>
-      <p>CMHW</p>
-    </footer>
-  </div>
-</body>
-</html>
-    `;
-  };
-
-  const exportAsHTML = () => {
-    const htmlContent = generateHTMLContent();
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${title.replace(/\s+/g, '_')}_consumption_report.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const sendToTelegram = async () => {
-    if (!BOT_TOKEN || !CHAT_ID) {
-      alert('Please configure BOT_TOKEN and CHAT_ID first.');
-      return;
+    if (result.success) {
+      alert('File generated and saved successfully!');
+      fetchTodayFiles(); // Refresh the files list
+    } else {
+      alert('Failed to generate file: ' + result.error);
     }
-    
+  } catch (error) {
+    console.error('Error generating file:', error);
+    alert('Error generating file. Please check console for details.');
+  } finally {
+    setIsGenerating(false);
+  }
+};
 
-    setIsSending(true);
+const sendToTelegram = async () => {
+  setIsSending(true);
+  try {
+    const response = await fetch('http://localhost:5000/api/send-cmh-to-telegram', {  // ← Changed endpoint
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        cmh: selectedCMH
+        // Remove sendAll parameter - new endpoint sends all files for that CMH
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert(`Successfully sent ${result.message}!`);
+    } else {
+      alert('Failed to send files: ' + result.error);
+    }
+  } catch (error) {
+    console.error('Error sending to Telegram:', error);
+    alert('Error sending files. Please check console for details.');
+  } finally {
+    setIsSending(false);
+  }
+};
+
+  const downloadFile = async (fileName) => {
     try {
-      const htmlContent = generateHTMLContent();
-      const blob = new Blob([htmlContent], { type: "text/html" });
-      const formData = new FormData();
-      formData.append("chat_id", CHAT_ID);
-      formData.append("document", blob, `${title.replace(/\s+/g, "_")}_consumption_report.html`);
-      formData.append("caption", `📊 ${title} - Consumption Report\nGenerated on ${new Date().toLocaleDateString()}`);
-
-      const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
-        method: "POST",
-        body: formData,
-      });
-
+      const response = await fetch(`http://localhost:5000/api/download/${fileName}`);
       if (response.ok) {
-        alert('Report sent to Telegram successfully!');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
       } else {
-        const errorData = await response.json();
-        alert(`Failed to send report: ${errorData.description || 'Unknown error'}`);
+        alert('Failed to download file');
       }
     } catch (error) {
-      console.error('Error sending to Telegram:', error);
-      alert('Error sending report to Telegram. Please check console for details.');
-    } finally {
-      setIsSending(false);
+      console.error('Error downloading file:', error);
+      alert('Error downloading file');
     }
   };
 
@@ -521,23 +259,101 @@ const ConsumptionReport = () => {
     <section id="consumption-section" className="content-section active">
       <div className="dashboard-container">
         <div className="dashboard-header">
-          <h1 id="dashboard-title" className="dashboard-title">{title}</h1>
-          <p className="dashboard-subtitle" id="current-date">
+          <h1 className="dashboard-title">Consumption Report Generator</h1>
+          <p className="dashboard-subtitle">
             {new Date().toLocaleDateString('en-GB')}
           </p>
         </div>
 
+        {/* Today's Generated Files */}
+        <div className="files-panel" style={{
+          background: 'white',
+          borderRadius: '8px',
+          padding: '15px',
+          marginBottom: '20px',
+          border: '1px solid #e1e5e9'
+        }}>
+          <h3 style={{ marginBottom: '10px', color: '#2c3e50' }}>Today's Generated Files</h3>
+          {todayFiles.length === 0 ? (
+            <p style={{ color: '#7f8c8d', fontStyle: 'italic' }}>No files generated today</p>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+              {todayFiles.map((file, index) => (
+                <div key={index} style={{
+                  background: '#f8f9fa',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #dee2e6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <span style={{ fontWeight: '600' }}>{file.title}</span>
+                  <button 
+                    onClick={() => downloadFile(file.fileName)}
+                    style={{
+                      background: '#28a745',
+                      color: 'white',
+                      border: 'none',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Download
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="dashboard-input-section">
           <div className="input-row">
-            <label htmlFor="title-input" className="input-label">Title</label>
-            <input 
-              type="text" 
-              className="dashboard-textarea" 
-              id="title-input" 
-              placeholder="Enter title (e.g., OFFER)" 
+            <label htmlFor="title-select" className="input-label">Report Title</label>
+            <select 
+              id="title-select"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-            />
+              style={{
+                border: '2px solid var(--border-color)',
+                borderRadius: 'var(--border-radius)',
+                padding: '10px',
+                background: 'var(--card-bg)',
+                color: 'var(--text-color)',
+                transition: 'var(--transition)',
+                fontSize: '11.2px',
+                fontWeight: '600'
+              }}
+            >
+              {availableTitles.map(t => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="input-row">
+            <label htmlFor="cmh-select" className="input-label">Select CMH</label>
+            <select 
+              id="cmh-select"
+              value={selectedCMH}
+              onChange={(e) => setSelectedCMH(e.target.value)}
+              style={{
+                border: '2px solid var(--border-color)',
+                borderRadius: 'var(--border-radius)',
+                padding: '10px',
+                background: 'var(--card-bg)',
+                color: 'var(--text-color)',
+                transition: 'var(--transition)',
+                fontSize: '11.2px',
+                fontWeight: '600'
+              }}
+            >
+              <option value="cmh1">CMH 1</option>
+              <option value="cmh2">CMH 2</option>
+              <option value="cmh3">CMH 3</option>
+            </select>
           </div>
           
           <div className="results-row">
@@ -580,29 +396,44 @@ const ConsumptionReport = () => {
             <button id="clear-btn" className="btn-clear" onClick={clearData}>
               Clear
             </button>
-            <button id="export-btn" className="btn-export" onClick={exportAsHTML}>
-              Export as HTML
+            <button 
+              id="save-btn" 
+              className="btn-save" 
+              onClick={generateAndSaveFile}
+              disabled={isGenerating}
+              style={{
+                backgroundColor: '#28a745',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: 'var(--border-radius)',
+                cursor: isGenerating ? 'not-allowed' : 'pointer',
+                opacity: isGenerating ? 0.6 : 1
+              }}
+            >
+              {isGenerating ? 'Saving...' : 'Save to Backend'}
             </button>
             <button 
               id="telegram-btn" 
               className="btn-telegram" 
               onClick={sendToTelegram}
-              disabled={isSending}
+              disabled={isSending || todayFiles.length === 0}
               style={{
                 backgroundColor: '#0088cc',
                 color: 'white',
                 border: 'none',
                 padding: '10px 20px',
-                borderRadius: '5px',
-                cursor: isSending ? 'not-allowed' : 'pointer',
-                opacity: isSending ? 0.6 : 1
+                borderRadius: 'var(--border-radius)',
+                cursor: (isSending || todayFiles.length === 0) ? 'not-allowed' : 'pointer',
+                opacity: (isSending || todayFiles.length === 0) ? 0.6 : 1
               }}
             >
-              {isSending ? 'Sending...' : 'Send to Telegram'}
+              {isSending ? `Sending...` : `Send ${selectedCMH.toUpperCase()} Files`}  {/* ← Updated text */}
             </button>
           </div>
         </div>
 
+        {/* Rest of your existing JSX for chart and table remains the same */}
         <div className="results-row">
           <div className="dashboard-chart-container" style={{ flex: 2 }}>
             <div className="dashboard-chart-header">
@@ -610,19 +441,19 @@ const ConsumptionReport = () => {
               <div className="dashboard-stats-panel">
                 <div className="dashboard-stat-item">
                   <span>Total Consumption: </span>
-                  <span className="dashboard-stat-value" id="total-consumption">
+                  <span className="dashboard-stat-value">
                     {totals.seeds}
                   </span>
                 </div>
                 <div className="dashboard-stat-item">
                   <span>Total Seeds Active: </span>
-                  <span className="dashboard-stat-value" id="total-active">
+                  <span className="dashboard-stat-value">
                     {totals.active}
                   </span>
                 </div>
                 <div className="dashboard-stat-item">
                   <span>Total Seeds Blocked: </span>
-                  <span className="dashboard-stat-value" id="total-blocked">
+                  <span className="dashboard-stat-value">
                     {totals.blocked}
                   </span>
                 </div>

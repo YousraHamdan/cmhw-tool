@@ -18,12 +18,24 @@ if (!fs.existsSync(FILES_DIR)) {
   fs.mkdirSync(FILES_DIR);
 }
 
+// Cleanup: remove any previously generated combined files (we don't want to persist combined reports)
+try {
+  const existing = fs.readdirSync(FILES_DIR);
+  existing.forEach(fname => {
+    if (/_COMBINED\.html$/.test(fname)) {
+      try { fs.unlinkSync(path.join(FILES_DIR, fname)); } catch (e) { /* ignore */ }
+    }
+  });
+} catch (e) {
+  // ignore errors during startup cleanup
+}
+
 // CMH configurations
 const cmhConfigs = {
   cmh1: {
     BOT_TOKEN: "8264293111:AAF_WCJJLabD5S3alNmgNvQOuGu3zukzoRs",
     CHAT_ID: "8304177747",
-    name: "CMH 1"
+    name: "test"
   },
   cmh2: {
     BOT_TOKEN: "8529644027:AAEVaCDf4EMOKgu0oalJkD94tEISKsa3NzY",
@@ -129,7 +141,7 @@ const generateHTMLContent = (data) => {
   footer { grid-column: 1 / -1; text-align: center; margin-top: 8px; padding: 6px; color: #718096; border-top: 1px solid #e2e8f0; font-size: 0.65rem; background: white; border-radius: 4px; }
 </style>
 </head>
-<body>
+<body class="with-footer">
   <div class="container">
     <div class="header">
       <div class="cmh-badge">${cmhName}</div>
@@ -216,6 +228,7 @@ const generateHTMLContent = (data) => {
 // NEW: Generate combined HTML with navigation and resume page
 const generateCombinedHTML = (cmh, filesData) => {
   const cmhName = cmhConfigs[cmh]?.name || cmh;
+  const combinedGeneratedDate = new Date().toLocaleDateString('en-GB');
   
   // Calculate resume data for each file
   const resumeData = filesData.map((file, fileIndex) => {
@@ -373,59 +386,63 @@ const generateCombinedHTML = (cmh, filesData) => {
     background: linear-gradient(135deg, #1a365d, #2c5282);
   }
   
-  /* Main Container - EXACTLY LIKE SINGLE FILE */
+  /* Main Container - FIXED HEIGHT */
   .main-container { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
     gap: 12px; 
-    height: calc(100vh - 120px); 
-    max-height: calc(100vh - 120px); 
+    height: calc(100vh - 150px); 
+    max-height: calc(100vh - 150px); 
+    min-height: calc(100vh - 150px);
   }
   
-  /* Resume Grid */
+  /* Resume Grid - FIXED HEIGHT */
   .resume-grid {
     display: grid;
     grid-template-columns: ${gridColumns};
     gap: 12px;
     height: 100%;
     grid-column: 1 / -1;
+    min-height: 0;
   }
   
-  /* Resume Card */
+  /* Resume Card - FIXED HEIGHT */
   .resume-card { 
     background: white; 
     border-radius: 8px; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     border: 1px solid #e2e8f0;
-    display: grid;
-    grid-template-rows: auto 1fr;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+    min-height: 0;
   }
   
-  /* Individual Report Pages - EXACT SAME STRUCTURE AS SINGLE FILE */
+  /* Individual Report Pages - FIXED HEIGHT */
   .report-page { 
     display: none; 
     height: 100%;
+    min-height: 0;
   }
   .report-page.active { 
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 1fr auto;
     gap: 12px;
     height: 100%;
     grid-column: 1 / -1;
+    min-height: 0;
   }
   
-  /* Left Panel - EXACT SAME AS SINGLE FILE */
+  /* Left Panel - CENTERED CONTENT */
   .left-panel { 
     display: flex; 
     flex-direction: column; 
     gap: 12px; 
     grid-row: 2;
     grid-column: 1;
+    min-height: 0;
   }
-  
-  /* ALL STYLES BELOW ARE EXACT COPY FROM SINGLE FILE */
   
   /* Header */
   .header { 
@@ -484,7 +501,7 @@ const generateCombinedHTML = (cmh, filesData) => {
     font-size: 0.9rem; 
   }
   
-  /* Diagram Container */
+  /* Diagram Container - CENTERED CONTENT */
   .diagram-container { 
     background: white; 
     border-radius: 8px; 
@@ -494,20 +511,31 @@ const generateCombinedHTML = (cmh, filesData) => {
     flex-grow: 1; 
     display: flex; 
     flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    min-height: 0;
+    gap: 8px;
   }
   .diagram-title { 
     font-size: 0.85rem; 
     font-weight: 600; 
-    margin-bottom: 8px; 
     color: #2d3748; 
     text-align: center; 
+    margin: 0;
   }
+  
+  /* CENTERED CHART CONTAINER */
   .chart-container { 
     position: relative; 
-    width: 140px; 
-    height: 140px; 
-    margin: 0 auto; 
+    width: 160px; 
+    height: 160px; 
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
+  
+  /* ENHANCED PIE CHART ANIMATION */
   .pie-chart { 
     width: 100%; 
     height: 100%; 
@@ -515,20 +543,37 @@ const generateCombinedHTML = (cmh, filesData) => {
     border-radius: 50%; 
     background: conic-gradient( #38a169 0% var(--active-percentage)%, #e53e3e var(--active-percentage)% 100% ); 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.05); 
-    animation: rotate 3s ease-in-out; 
+    animation: pieGrow 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+               rotate 2s ease-in-out,
+               glow 3s ease-in-out infinite alternate;
     transform-origin: center; 
+    opacity: 0;
+    animation-fill-mode: forwards;
   }
+  
+  @keyframes pieGrow {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
   @keyframes rotate {
-    0% { transform: scale(0.8) rotate(-90deg); opacity: 0; }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    0% { transform: rotate(-180deg) scale(0); }
+    100% { transform: rotate(0deg) scale(1); }
   }
+  
+  @keyframes glow {
+    0% { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.05); }
+    100% { box-shadow: 0 6px 20px rgba(56, 161, 105, 0.3), 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.1); }
+  }
+  
   .chart-center { 
     position: absolute; 
     top: 50%; 
     left: 50%; 
     transform: translate(-50%, -50%); 
-    width: 60px; 
-    height: 60px; 
+    width: 70px; 
+    height: 70px; 
     background: white; 
     border-radius: 50%; 
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1); 
@@ -538,73 +583,131 @@ const generateCombinedHTML = (cmh, filesData) => {
     justify-content: center; 
     z-index: 10; 
     border: 1px solid #e2e8f0; 
+    animation: centerPop 1s ease-in-out 0.5s both;
   }
+  
+  @keyframes centerPop {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    70% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+  
   .total-count { 
-    font-size: 0.9rem; 
+    font-size: 1rem; 
     font-weight: 700; 
     color: #2c5282; 
     line-height: 1; 
-  }
-  .total-label { 
-    font-size: 0.6rem; 
-    color: #718096; 
-    margin-top: 2px; 
+    animation: countFade 1s ease-in-out 1s both;
   }
   
-  /* Diagram Legend */
+  @keyframes countFade {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  
+  .total-label { 
+    font-size: 0.65rem; 
+    color: #718096; 
+    margin-top: 2px; 
+    animation: labelFade 1s ease-in-out 1.2s both;
+  }
+  
+  @keyframes labelFade {
+    0% { opacity: 0; transform: translateY(5px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* CENTERED DIAGRAM LEGEND */
   .diagram-legend { 
-    margin-top: 10px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    max-width: 200px;
   }
   .legend-item { 
     display: flex; 
     align-items: center; 
-    margin-bottom: 6px; 
-    padding: 6px 8px; 
+    padding: 6px 12px; 
     border-radius: 6px; 
     background: #f7fafc; 
     border: 1px solid #e2e8f0; 
     transition: transform 0.2s ease; 
+    animation: legendSlide 0.5s ease-in-out both;
+    width: 100%;
+    justify-content: space-between;
   }
+  .legend-item:nth-child(1) { animation-delay: 1.4s; }
+  .legend-item:nth-child(2) { animation-delay: 1.6s; }
+  
+  @keyframes legendSlide {
+    0% { opacity: 0; transform: translateX(-20px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  
   .legend-item:hover { 
     transform: translateX(4px); 
   }
   .legend-color { 
-    width: 10px; 
-    height: 10px; 
+    width: 12px; 
+    height: 12px; 
     border-radius: 50%; 
-    margin-right: 6px; 
+    margin-right: 8px; 
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); 
+    flex-shrink: 0;
   }
   .legend-label { 
-    flex: 1; 
-    font-size: 0.7rem; 
+    font-size: 0.75rem; 
     font-weight: 500; 
+    flex: 1;
   }
   .legend-percentage { 
     font-weight: 700; 
     color: #2c5282; 
     margin-left: 3px; 
-    font-size: 0.7rem; 
+    font-size: 0.75rem; 
   }
   .legend-count { 
-    font-size: 0.65rem; 
+    font-size: 0.7rem; 
     color: #718096; 
     margin-left: 3px; 
   }
   
-  /* TABLE CONTAINER - EXACT SAME AS SINGLE FILE */
+  /* TABLE CONTAINER - CENTERED CONTENT */
   .table-container {
     background: white;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 12px;
     border: 1px solid #e2e8f0;
-    overflow: auto;
+    overflow: hidden;
     height: 100%;
     grid-row: 2;
     grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
+  .table-title {
+    margin-bottom: 12px;
+    color: #2d3748;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .table-wrapper {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* CENTERED TABLE */
   table {
     width: 100%;
     border-collapse: collapse;
@@ -612,17 +715,20 @@ const generateCombinedHTML = (cmh, filesData) => {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-radius: 6px;
     overflow: hidden;
+    position: relative;
+    margin: auto 0;
   }
 
   th {
-    padding: 6px 4px;
-    text-align: left;
+    padding: 8px 6px;
+    text-align: center;
     border-bottom: 2px solid #e2e8f0;
     font-weight: 600;
     color: white;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     position: sticky;
     top: 0;
+    z-index: 10;
   }
 
   th:nth-child(1) { background: linear-gradient(135deg, #2c5282, #1a365d); }
@@ -631,9 +737,10 @@ const generateCombinedHTML = (cmh, filesData) => {
   th:nth-child(4) { background: linear-gradient(135deg, #e53e3e, #c53030); }
 
   td {
-    padding: 4px;
+    padding: 6px 4px;
     border-bottom: 1px solid #f7fafc;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
+    text-align: center;
   }
 
   td:nth-child(3) {
@@ -653,14 +760,35 @@ const generateCombinedHTML = (cmh, filesData) => {
     font-weight: 600;
     position: sticky;
     bottom: 0;
+    z-index: 5;
   }
 
   .totals-row td {
     border-top: 2px solid #e2e8f0;
-    padding: 6px 4px;
+    padding: 8px 4px;
+    background: inherit;
+    text-align: center;
+    font-size: 0.75rem;
   }
   
-  /* Footer - EXACT SAME AS SINGLE FILE */
+  /* Fixed footer for combined page */
+  .fixed-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(44,82,130,0.95), rgba(56,161,105,0.95));
+    color: white;
+    padding: 10px 16px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    z-index: 9999;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+  }
+  body.with-footer { padding-bottom: 56px; }
+
+  /* Footer */
   footer { 
     grid-column: 1 / -1; 
     text-align: center; 
@@ -671,6 +799,7 @@ const generateCombinedHTML = (cmh, filesData) => {
     font-size: 0.65rem; 
     background: white; 
     border-radius: 4px; 
+    grid-row: 3;
   }
   
   /* View Details Button */
@@ -678,13 +807,13 @@ const generateCombinedHTML = (cmh, filesData) => {
     background: linear-gradient(135deg, #38a169, #2f855a);
     color: white;
     border: none;
-    padding: 6px 12px;
+    padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    margin-top: 8px;
+    margin-top: auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     width: 100%;
   }
@@ -769,7 +898,7 @@ const generateCombinedHTML = (cmh, filesData) => {
       </div>
     </div>
     
-    <!-- Individual Report Pages - EXACT SAME STRUCTURE AS SINGLE FILE -->
+    <!-- Individual Report Pages - CENTERED CONTENT -->
     ${filesData.map((file, index) => {
       const seedsValues = file.seedsInput.split('\n').map(v => parseInt(v.trim()) || 0).filter(v => !isNaN(v));
       const activeValues = file.activeInput.split('\n').map(v => parseInt(v.trim()) || 0).filter(v => !isNaN(v));
@@ -793,14 +922,14 @@ const generateCombinedHTML = (cmh, filesData) => {
 
       return `
         <div id="report${index}" class="report-page">
-          <!-- EXACT SAME HEADER AS SINGLE FILE -->
+          <!-- HEADER -->
           <div class="header">
             <div class="cmh-badge-small">${cmhName}</div>
             <h1 class="title">${file.title}</h1>
             <p class="subtitle">Consumption Report - Generated on ${new Date().toLocaleDateString('en-GB')}</p>
           </div>
           
-          <!-- EXACT SAME LEFT PANEL AS SINGLE FILE -->
+          <!-- LEFT PANEL WITH CENTERED CHART -->
           <div class="left-panel">
             <div class="stats-panel">
               <div class="stat-item"><span>Total Consumption: </span><span class="stat-value">${totalSeeds}</span></div>
@@ -836,42 +965,46 @@ const generateCombinedHTML = (cmh, filesData) => {
             </div>
           </div>
           
-          <!-- EXACT SAME TABLE CONTAINER AS SINGLE FILE -->
+          <!-- TABLE CONTAINER WITH CENTERED CONTENT -->
           <div class="table-container">
-            <h3 style="margin-bottom: 8px; color: #2d3748;">Detailed Data</h3>
-            <table class="${seedsValues.length > 15 ? 'compact-table' : ''}">
-              <thead>
-                <tr>
-                  <th style="width: 15%">Drop N°</th>
-                  <th style="width: 25%">Consumption Seeds</th>
-                  <th style="width: 20%">Active/Drop</th>
-                  <th style="width: 20%">Blocked</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${seedsValues.map((seeds, i) => {
-                  const dropNumber = i + 1;
-                  const active = activeValues[i] || 0;
-                  const blocked = seeds - active;
-                  return `
-                    <tr>
-                      <td>${dropNumber}</td>
-                      <td>${seeds}</td>
-                      <td>${active}</td>
-                      <td>${blocked}</td>
-                    </tr>
-                  `;
-                }).join('')}
-                <tr class="totals-row">
-                  <td colspan="2">TOTAL: ${totalSeeds}</td>
-                  <td>ACTIVE: ${totalActive}</td>
-                  <td>BLOCKED: ${totalBlocked}</td>
-                </tr>
-              </tbody>
-            </table>
+            <h3 class="table-title">Detailed Data</h3>
+            <div class="table-wrapper">
+              <table class="${seedsValues.length > 15 ? 'compact-table' : ''}">
+                <thead>
+                  <tr>
+                    <th style="width: 20%">Drop N°</th>
+                    <th style="width: 30%">Consumption Seeds</th>
+                    <th style="width: 25%">Active/Drop</th>
+                    <th style="width: 25%">Blocked</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${seedsValues.map((seeds, i) => {
+                    const dropNumber = i + 1;
+                    const active = activeValues[i] || 0;
+                    const blocked = seeds - active;
+                    return `
+                      <tr>
+                        <td>${dropNumber}</td>
+                        <td>${seeds}</td>
+                        <td>${active}</td>
+                        <td>${blocked}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+                <tfoot>
+                  <tr class="totals-row">
+                    <td colspan="2">TOTAL: ${totalSeeds}</td>
+                    <td>ACTIVE: ${totalActive}</td>
+                    <td>BLOCKED: ${totalBlocked}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
           
-          <!-- EXACT SAME FOOTER AS SINGLE FILE -->
+          <!-- FOOTER -->
           <footer><p>CMHW - ${cmhName}</p></footer>
         </div>
       `;
@@ -898,6 +1031,17 @@ const generateCombinedHTML = (cmh, filesData) => {
       
       currentTab = tabName;
       updateNavigation();
+      
+      // Reset animations when switching tabs
+      if (tabName !== 'resume') {
+        const pieCharts = document.querySelectorAll(\`#\${tabName} .pie-chart\`);
+        pieCharts.forEach(chart => {
+          chart.style.animation = 'none';
+          setTimeout(() => {
+            chart.style.animation = '';
+          }, 10);
+        });
+      }
     }
     
     function nextReport() {
@@ -939,11 +1083,11 @@ const generateCombinedHTML = (cmh, filesData) => {
       }
     });
   </script>
+  <div class="fixed-footer">Generated by CMHW TEAM ON ${combinedGeneratedDate}</div>
 </body>
 </html>
   `;
 };
-
 // Fix for Chrome DevTools CSP error
 app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => {
   res.json({});
@@ -1143,16 +1287,18 @@ app.post('/api/send-cmh-to-telegram', async (req, res) => {
       }
     });
 
-    // Generate combined HTML
+
+    // Generate combined HTML (do NOT save to disk)
     const combinedHTML = generateCombinedHTML(cmh, filesToCombine);
     const combinedFileName = `${today}_${cmh}_COMBINED.html`;
-    const combinedFilePath = path.join(FILES_DIR, combinedFileName);
-    fs.writeFileSync(combinedFilePath, combinedHTML);
 
-    // Send the combined file
+    // Send the combined HTML as an in-memory file (no disk write)
     const formData = new FormData();
     formData.append('chat_id', CHAT_ID);
-    formData.append('document', fs.createReadStream(combinedFilePath));
+    formData.append('document', Buffer.from(combinedHTML, 'utf8'), {
+      filename: combinedFileName,
+      contentType: 'text/html'
+    });
     formData.append('caption', `📊 ${name} - Combined Reports\nAll consumption reports in one file - Generated on ${new Date().toLocaleDateString()}`);
 
     const response = await axios.post(

@@ -11,7 +11,8 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('dark');
+  // Default to light mode
+  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     document.body.setAttribute('data-theme', theme);

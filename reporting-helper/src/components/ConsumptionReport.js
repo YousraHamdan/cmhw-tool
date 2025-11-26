@@ -108,15 +108,15 @@ const ConsumptionReport = () => {
             {
               label: 'Seeds Active',
               data: activeData,
-              backgroundColor: 'rgba(107, 142, 35, 0.7)', 
-              borderColor: 'rgba(107, 142, 35, 1)',
+              backgroundColor: 'rgba(5, 150, 105, 0.7)',
+              borderColor: 'rgba(5, 150, 105, 1)',
               borderWidth: 1
             },
             {
               label: 'Seeds Blocked',
               data: blockedData,
-              backgroundColor:'rgba(128, 0, 32, 0.7)',  
-              borderColor: 'rgba(128, 0, 32, 1)',
+              backgroundColor: 'rgba(220, 38, 38, 0.7)',
+              borderColor: 'rgba(220, 38, 38, 1)',
               borderWidth: 1
             }
           ]
@@ -298,28 +298,28 @@ const sendToTelegram = async () => {
         }}>
           <h3 style={{ marginBottom: '10px', color: '#2c3e50' }}>Today's Generated Files</h3>
           {todayFiles.length === 0 ? (
-            <p style={{ color: '#7f8c8d', fontStyle: 'italic' }}>No files generated today</p>
+            <p style={{ color: 'var(--muted-color)', fontStyle: 'italic' }}>No files generated today</p>
           ) : (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
               {todayFiles.map((file, index) => (
                 <div key={index} style={{
-                  background: '#f8f9fa',
+                  background: 'var(--bg-color)',
                   padding: '8px 12px',
                   borderRadius: '6px',
-                  border: '1px solid #dee2e6',
+                  border: '1px solid var(--border-color)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px'
                 }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontWeight: '700' }}>{file.cmhName}</span>
-                    <span style={{ fontSize: '12px', color: '#495057' }}>{file.title}</span>
+                    <span style={{ fontWeight: '700', color: 'var(--text-color)' }}>{file.cmhName}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--muted-color)' }}>{file.title}</span>
                   </div>
                   <button 
                     onClick={() => downloadFile(file.fileName)}
                     style={{
-                      background: '#28a745',
-                      color: 'white',
+                      background: 'var(--secondary)',
+                      color: 'var(--light-text)',
                       border: 'none',
                       padding: '4px 8px',
                       borderRadius: '4px',
@@ -332,8 +332,8 @@ const sendToTelegram = async () => {
                   <button
                     onClick={() => deleteFile(file.fileName)}
                     style={{
-                      background: '#dc3545',
-                      color: 'white',
+                      background: 'var(--accent)',
+                      color: 'var(--light-text)',
                       border: 'none',
                       padding: '4px 8px',
                       borderRadius: '4px',

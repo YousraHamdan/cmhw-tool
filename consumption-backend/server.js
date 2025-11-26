@@ -214,22 +214,21 @@ const generateHTMLContent = (data) => {
 };
 
 // NEW: Generate combined HTML with navigation and resume page
-// Updated: Generate combined HTML with matching theme and navigation
 const generateCombinedHTML = (cmh, filesData) => {
   const cmhName = cmhConfigs[cmh]?.name || cmh;
   
-  // Calculate resume data and individual report data
+  // Calculate resume data for each file
   const resumeData = filesData.map((file, fileIndex) => {
-    const seedsValues = file.seedsInput.split('\n').map(v => v.trim()).filter(v => v !== '');
-    const activeValues = file.activeInput.split('\n').map(v => v.trim()).filter(v => v !== '');
+    const seedsValues = file.seedsInput.split('\n').map(v => parseInt(v.trim()) || 0).filter(v => !isNaN(v));
+    const activeValues = file.activeInput.split('\n').map(v => parseInt(v.trim()) || 0).filter(v => !isNaN(v));
     
     let totalSeeds = 0;
     let totalActive = 0;
     let totalBlocked = 0;
     
     seedsValues.forEach((seeds, i) => {
-      const seedsNum = parseInt(seeds) || 0;
-      const activeNum = parseInt(activeValues[i]) || 0;
+      const seedsNum = seeds;
+      const activeNum = activeValues[i] || 0;
       const blockedNum = seedsNum - activeNum;
       
       totalSeeds += seedsNum;
@@ -254,6 +253,11 @@ const generateCombinedHTML = (cmh, filesData) => {
     };
   });
 
+  // Calculate grid columns based on number of reports
+  const gridColumns = resumeData.length <= 2 ? '1fr 1fr' : 
+                     resumeData.length === 3 ? '1fr 1fr 1fr' : 
+                     '1fr 1fr 1fr 1fr';
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -276,7 +280,6 @@ const generateCombinedHTML = (cmh, filesData) => {
   
   /* Navigation Header */
   .nav-header { 
-    grid-column: 1 / -1; 
     text-align: center; 
     margin-bottom: 8px; 
     padding: 12px; 
@@ -370,8 +373,8 @@ const generateCombinedHTML = (cmh, filesData) => {
     background: linear-gradient(135deg, #1a365d, #2c5282);
   }
   
-  /* Main Container */
-  .container { 
+  /* Main Container - EXACTLY LIKE SINGLE FILE */
+  .main-container { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
     gap: 12px; 
@@ -379,49 +382,82 @@ const generateCombinedHTML = (cmh, filesData) => {
     max-height: calc(100vh - 120px); 
   }
   
-  /* Content Area */
-  .content-area { 
-    background: white; 
-    border-radius: 8px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    border: 1px solid #e2e8f0; 
-    overflow: auto;
-    padding: 12px;
+  /* Resume Grid */
+  .resume-grid {
+    display: grid;
+    grid-template-columns: ${gridColumns};
+    gap: 12px;
+    height: 100%;
+    grid-column: 1 / -1;
   }
   
-  /* Resume Page */
-  .resume-page { 
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 16px;
-    height: 100%;
-  }
+  /* Resume Card */
   .resume-card { 
     background: white; 
     border-radius: 8px; 
-    padding: 16px; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
     border: 1px solid #e2e8f0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
   }
-  .resume-card-header { 
+  
+  /* Individual Report Pages - EXACT SAME STRUCTURE AS SINGLE FILE */
+  .report-page { 
+    display: none; 
+    height: 100%;
+  }
+  .report-page.active { 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 12px;
+    height: 100%;
+    grid-column: 1 / -1;
+  }
+  
+  /* Left Panel - EXACT SAME AS SINGLE FILE */
+  .left-panel { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    grid-row: 2;
+    grid-column: 1;
+  }
+  
+  /* ALL STYLES BELOW ARE EXACT COPY FROM SINGLE FILE */
+  
+  /* Header */
+  .header { 
+    grid-column: 1 / -1; 
     text-align: center; 
-    margin-bottom: 12px; 
-    padding-bottom: 8px; 
+    margin-bottom: 8px; 
+    padding: 8px; 
     border-bottom: 2px solid #2c5282; 
+    background: white; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
   }
-  .resume-title { 
-    font-size: 1.2rem; 
+  .cmh-badge-small { 
+    background: linear-gradient(135deg, #2c5282, #1a365d); 
+    color: white; 
+    padding: 4px 12px; 
+    border-radius: 6px; 
+    font-size: 0.7rem; 
+    margin-bottom: 4px; 
+    display: inline-block; 
+    font-weight: 600; 
+  }
+  .title { 
+    font-size: 1.3rem; 
     font-weight: 700; 
-    background: linear-gradient(135deg, #2c5282, #38a169);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    margin-bottom: 4px;
+    background: linear-gradient(135deg, #2c5282, #38a169); 
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    color: transparent; 
+    margin-bottom: 4px; 
   }
-  .resume-subtitle { 
+  .subtitle { 
     color: #718096; 
     font-size: 0.7rem; 
   }
@@ -433,7 +469,6 @@ const generateCombinedHTML = (cmh, filesData) => {
     padding: 12px; 
     border: 1px solid #e2e8f0; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-    margin-bottom: 12px;
   }
   .stat-item { 
     margin-bottom: 8px; 
@@ -478,6 +513,7 @@ const generateCombinedHTML = (cmh, filesData) => {
     height: 100%; 
     position: relative; 
     border-radius: 50%; 
+    background: conic-gradient( #38a169 0% var(--active-percentage)%, #e53e3e var(--active-percentage)% 100% ); 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.05); 
     animation: rotate 3s ease-in-out; 
     transform-origin: center; 
@@ -556,77 +592,75 @@ const generateCombinedHTML = (cmh, filesData) => {
     margin-left: 3px; 
   }
   
-  /* Table Container */
-  .table-container { 
-    background: white; 
-    border-radius: 8px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    padding: 12px; 
-    border: 1px solid #e2e8f0; 
-    overflow: auto; 
-    height: 100%; 
+  /* TABLE CONTAINER - EXACT SAME AS SINGLE FILE */
+  .table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    overflow: auto;
+    height: 100%;
+    grid-row: 2;
+    grid-column: 2;
   }
-  table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    font-size: 9px; 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-    border-radius: 6px; 
-    overflow: hidden; 
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
   }
-  th { 
-    padding: 6px 4px; 
-    text-align: left; 
-    border-bottom: 2px solid #e2e8f0; 
-    font-weight: 600; 
-    color: white; 
-    font-size: 0.7rem; 
-    position: sticky; 
-    top: 0; 
+
+  th {
+    padding: 6px 4px;
+    text-align: left;
+    border-bottom: 2px solid #e2e8f0;
+    font-weight: 600;
+    color: white;
+    font-size: 0.7rem;
+    position: sticky;
+    top: 0;
   }
+
   th:nth-child(1) { background: linear-gradient(135deg, #2c5282, #1a365d); }
   th:nth-child(2) { background: linear-gradient(135deg, #2c5282, #1a365d); }
   th:nth-child(3) { background: linear-gradient(135deg, #38a169, #2f855a); }
   th:nth-child(4) { background: linear-gradient(135deg, #e53e3e, #c53030); }
-  td { 
-    padding: 4px; 
-    border-bottom: 1px solid #f7fafc; 
-    font-size: 0.65rem; 
+
+  td {
+    padding: 4px;
+    border-bottom: 1px solid #f7fafc;
+    font-size: 0.65rem;
   }
-  td:nth-child(3) { 
-    background-color: rgba(56, 161, 105, 0.1); 
-    color: #2f855a; 
-    font-weight: 500; 
+
+  td:nth-child(3) {
+    background-color: rgba(56, 161, 105, 0.1);
+    color: #2f855a;
+    font-weight: 500;
   }
-  td:nth-child(4) { 
-    background-color: rgba(229, 62, 62, 0.1); 
-    color: #c53030; 
-    font-weight: 500; 
+
+  td:nth-child(4) {
+    background-color: rgba(229, 62, 62, 0.1);
+    color: #c53030;
+    font-weight: 500;
   }
-  .totals-row { 
-    background: linear-gradient(135deg, rgba(44, 82, 130, 0.1), rgba(56, 161, 105, 0.1)); 
-    font-weight: 600; 
-    position: sticky; 
-    bottom: 0; 
+
+  .totals-row {
+    background: linear-gradient(135deg, rgba(44, 82, 130, 0.1), rgba(56, 161, 105, 0.1));
+    font-weight: 600;
+    position: sticky;
+    bottom: 0;
   }
-  .totals-row td { 
-    border-top: 2px solid #e2e8f0; 
-    padding: 6px 4px; 
-  }
-  
-  /* Report Pages */
-  .report-page { 
-    display: none; 
-    height: 100%;
-  }
-  .report-page.active { 
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    height: 100%;
+
+  .totals-row td {
+    border-top: 2px solid #e2e8f0;
+    padding: 6px 4px;
   }
   
-  /* Footer */
+  /* Footer - EXACT SAME AS SINGLE FILE */
   footer { 
     grid-column: 1 / -1; 
     text-align: center; 
@@ -652,6 +686,7 @@ const generateCombinedHTML = (cmh, filesData) => {
     transition: all 0.3s ease;
     margin-top: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
   }
   .view-details-btn:hover {
     background: linear-gradient(135deg, #2f855a, #38a169);
@@ -677,68 +712,75 @@ const generateCombinedHTML = (cmh, filesData) => {
     `).join('')}
   </div>
 
-  <div class="container">
+  <div class="main-container">
     <!-- Resume Page -->
     <div id="resume" class="report-page active">
-      ${resumeData.map(data => `
-        <div class="resume-card">
-          <div class="resume-card-header">
-            <div class="resume-title">${data.title}</div>
-            <div class="resume-subtitle">Consumption Summary</div>
-          </div>
-          
-          <div class="stats-panel">
-            <div class="stat-item"><span>Total Consumption: </span><span class="stat-value">${data.totalSeeds}</span></div>
-            <div class="stat-item"><span>Total Seeds Active: </span><span class="stat-value">${data.totalActive}</span></div>
-            <div class="stat-item"><span>Total Seeds Blocked: </span><span class="stat-value">${data.totalBlocked}</span></div>
-            <div class="stat-item"><span>Sessions Out: </span><span class="stat-value">${data.sessionsOut}</span></div>
-          </div>
-          
-          <div class="diagram-container">
-            <h3 class="diagram-title">Consumption Overview</h3>
-            <div class="chart-container">
-              <div class="pie-chart" style="background: conic-gradient(#38a169 0% ${data.activePercentage}%, #e53e3e ${data.activePercentage}% 100%);">
-                <div class="chart-center">
-                  <div class="total-count">${data.totalSeeds}</div>
-                  <div class="total-label">Total</div>
+      <div class="resume-grid">
+        ${resumeData.map(data => `
+          <div class="resume-card">
+            <div class="header">
+              <div class="cmh-badge-small">${cmhName}</div>
+              <div class="title">${data.title}</div>
+              <div class="subtitle">Consumption Report</div>
+            </div>
+            
+            <div class="left-panel">
+              <div class="stats-panel">
+                <div class="stat-item"><span>Total Consumption: </span><span class="stat-value">${data.totalSeeds}</span></div>
+                <div class="stat-item"><span>Total Seeds Active: </span><span class="stat-value">${data.totalActive}</span></div>
+                <div class="stat-item"><span>Total Seeds Blocked: </span><span class="stat-value">${data.totalBlocked}</span></div>
+                <div class="stat-item"><span>Sessions Out: </span><span class="stat-value">${data.sessionsOut}</span></div>
+              </div>
+              
+              <div class="diagram-container">
+                <h3 class="diagram-title">Consumption Overview</h3>
+                <div class="chart-container">
+                  <div class="pie-chart" style="--active-percentage: ${data.activePercentage}%; background: conic-gradient(#38a169 0% ${data.activePercentage}%, #e53e3e ${data.activePercentage}% 100%);">
+                    <div class="chart-center">
+                      <div class="total-count">${data.totalSeeds}</div>
+                      <div class="total-label">Total</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="diagram-legend">
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: #38a169;"></div>
+                    <span class="legend-label">Active Seeds</span>
+                    <span class="legend-percentage">${data.activePercentage}%</span>
+                    <span class="legend-count">(${data.totalActive})</span>
+                  </div>
+                  <div class="legend-item">
+                    <div class="legend-color" style="background-color: #e53e3e;"></div>
+                    <span class="legend-label">Blocked Seeds</span>
+                    <span class="legend-percentage">${data.blockedPercentage}%</span>
+                    <span class="legend-count">(${data.totalBlocked})</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="diagram-legend">
-              <div class="legend-item">
-                <div class="legend-color" style="background-color: #38a169;"></div>
-                <span class="legend-label">Active Seeds</span>
-                <span class="legend-percentage">${data.activePercentage}%</span>
-                <span class="legend-count">(${data.totalActive})</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-color" style="background-color: #e53e3e;"></div>
-                <span class="legend-label">Blocked Seeds</span>
-                <span class="legend-percentage">${data.blockedPercentage}%</span>
-                <span class="legend-count">(${data.totalBlocked})</span>
-              </div>
+            
+            <div style="padding: 12px; border-top: 1px solid #e2e8f0;">
+              <button class="view-details-btn" onclick="showTab('report${data.fileIndex}')">
+                View Detailed Report
+              </button>
             </div>
           </div>
-          
-          <button class="view-details-btn" onclick="showTab('report${data.fileIndex}')">
-            View Detailed Report
-          </button>
-        </div>
-      `).join('')}
+        `).join('')}
+      </div>
     </div>
     
-    <!-- Individual Report Pages -->
+    <!-- Individual Report Pages - EXACT SAME STRUCTURE AS SINGLE FILE -->
     ${filesData.map((file, index) => {
-      const seedsValues = file.seedsInput.split('\n').map(v => v.trim()).filter(v => v !== '');
-      const activeValues = file.activeInput.split('\n').map(v => v.trim()).filter(v => v !== '');
+      const seedsValues = file.seedsInput.split('\n').map(v => parseInt(v.trim()) || 0).filter(v => !isNaN(v));
+      const activeValues = file.activeInput.split('\n').map(v => parseInt(v.trim()) || 0).filter(v => !isNaN(v));
       
       let totalSeeds = 0;
       let totalActive = 0;
       let totalBlocked = 0;
       
       seedsValues.forEach((seeds, i) => {
-        const seedsNum = parseInt(seeds) || 0;
-        const activeNum = parseInt(activeValues[i]) || 0;
+        const seedsNum = seeds;
+        const activeNum = activeValues[i] || 0;
         const blockedNum = seedsNum - activeNum;
         
         totalSeeds += seedsNum;
@@ -751,6 +793,14 @@ const generateCombinedHTML = (cmh, filesData) => {
 
       return `
         <div id="report${index}" class="report-page">
+          <!-- EXACT SAME HEADER AS SINGLE FILE -->
+          <div class="header">
+            <div class="cmh-badge-small">${cmhName}</div>
+            <h1 class="title">${file.title}</h1>
+            <p class="subtitle">Consumption Report - Generated on ${new Date().toLocaleDateString('en-GB')}</p>
+          </div>
+          
+          <!-- EXACT SAME LEFT PANEL AS SINGLE FILE -->
           <div class="left-panel">
             <div class="stats-panel">
               <div class="stat-item"><span>Total Consumption: </span><span class="stat-value">${totalSeeds}</span></div>
@@ -762,7 +812,7 @@ const generateCombinedHTML = (cmh, filesData) => {
             <div class="diagram-container">
               <h3 class="diagram-title">Consumption Overview</h3>
               <div class="chart-container">
-                <div class="pie-chart" style="background: conic-gradient(#38a169 0% ${activePercentage}%, #e53e3e ${activePercentage}% 100%);">
+                <div class="pie-chart" style="--active-percentage: ${activePercentage}%; background: conic-gradient(#38a169 0% ${activePercentage}%, #e53e3e ${activePercentage}% 100%);">
                   <div class="chart-center">
                     <div class="total-count">${totalSeeds}</div>
                     <div class="total-label">Total</div>
@@ -786,8 +836,9 @@ const generateCombinedHTML = (cmh, filesData) => {
             </div>
           </div>
           
+          <!-- EXACT SAME TABLE CONTAINER AS SINGLE FILE -->
           <div class="table-container">
-            <h3 style="margin-bottom: 8px; color: #2d3748;">Detailed Data - ${file.title}</h3>
+            <h3 style="margin-bottom: 8px; color: #2d3748;">Detailed Data</h3>
             <table class="${seedsValues.length > 15 ? 'compact-table' : ''}">
               <thead>
                 <tr>
@@ -800,8 +851,8 @@ const generateCombinedHTML = (cmh, filesData) => {
               <tbody>
                 ${seedsValues.map((seeds, i) => {
                   const dropNumber = i + 1;
-                  const active = parseInt(activeValues[i]) || 0;
-                  const blocked = parseInt(seeds) - active;
+                  const active = activeValues[i] || 0;
+                  const blocked = seeds - active;
                   return `
                     <tr>
                       <td>${dropNumber}</td>
@@ -819,13 +870,12 @@ const generateCombinedHTML = (cmh, filesData) => {
               </tbody>
             </table>
           </div>
+          
+          <!-- EXACT SAME FOOTER AS SINGLE FILE -->
+          <footer><p>CMHW - ${cmhName}</p></footer>
         </div>
       `;
     }).join('')}
-    
-    <footer>
-      <p>CMHW - ${cmhName} - Combined Reports - Generated on ${new Date().toLocaleDateString('en-GB')}</p>
-    </footer>
   </div>
 
   <script>
@@ -910,15 +960,16 @@ app.get('/api/files/today', (req, res) => {
     if (fs.existsSync(FILES_DIR)) {
       const fileNames = fs.readdirSync(FILES_DIR);
       fileNames.forEach(fileName => {
-        if (fileName.startsWith(today)) {
+        // Only include HTML files
+        if (fileName.startsWith(today) && fileName.endsWith('.html')) {
           const filePath = path.join(FILES_DIR, fileName);
           const stats = fs.statSync(filePath);
-          
+
           // Extract CMH and title from filename
           const parts = fileName.replace('.html', '').split('_');
           const cmh = parts[1]; // cmh1, cmh2, etc.
           const title = parts[2];
-          
+
           files.push({
             fileName,
             title,
@@ -941,26 +992,31 @@ app.get('/api/files/today', (req, res) => {
 app.post('/api/generate-file', (req, res) => {
   try {
     const { title, seedsInput, activeInput, sessionsOutInput, cmh } = req.body;
-    
+
     // Validate inputs
     if (!allowedTitles.includes(title)) {
       return res.status(400).json({ error: 'Invalid title' });
     }
-    
+
     if (!cmhConfigs[cmh]) {
       return res.status(400).json({ error: 'Invalid CMH selection' });
     }
-    
+
     const today = getTodayDateString();
     // File naming: date_cmh_title.html
     const fileName = `${today}_${cmh}_${title}.html`;
     const filePath = path.join(FILES_DIR, fileName);
-    
+    const jsonFileName = `${today}_${cmh}_${title}.json`;
+    const jsonFilePath = path.join(FILES_DIR, jsonFileName);
+
     // Check if file with same title and CMH exists and remove it
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }
-    
+    if (fs.existsSync(jsonFilePath)) {
+      fs.unlinkSync(jsonFilePath);
+    }
+
     // Generate HTML content
     const htmlContent = generateHTMLContent({
       title,
@@ -969,19 +1025,31 @@ app.post('/api/generate-file', (req, res) => {
       sessionsOutInput,
       cmh
     });
-    
-    // Save file
+
+    // Save HTML file
     fs.writeFileSync(filePath, htmlContent);
-    
-    res.json({ 
-      success: true, 
+
+    // Save JSON file
+    const jsonData = {
+      title,
+      seedsInput,
+      activeInput,
+      sessionsOutInput,
+      cmh
+    };
+    fs.writeFileSync(jsonFilePath, JSON.stringify(jsonData, null, 2));
+
+    res.json({
+      success: true,
       message: 'File generated successfully',
       fileName,
       filePath,
+      jsonFileName,
+      jsonFilePath,
       cmh: cmh,
       cmhName: cmhConfigs[cmh].name
     });
-    
+
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate file' });
   }
@@ -991,62 +1059,49 @@ app.post('/api/generate-file', (req, res) => {
 app.post('/api/generate-combined-file', (req, res) => {
   try {
     const { cmh } = req.body;
-    
+
     if (!cmhConfigs[cmh]) {
       return res.status(400).json({ error: 'Invalid CMH selection' });
     }
-    
+
     const today = getTodayDateString();
     const filesToCombine = [];
-    
-    // Read all individual files for this CMH
+
+    // Read all individual JSON files for this CMH
     const fileNames = fs.readdirSync(FILES_DIR);
-    const cmhFiles = fileNames.filter(fileName => 
-      fileName.startsWith(today) && fileName.includes(`_${cmh}_`)
+    const cmhJsonFiles = fileNames.filter(fileName =>
+      fileName.startsWith(today) && fileName.includes(`_${cmh}_`) && fileName.endsWith('.json')
     );
-    
-    if (cmhFiles.length === 0) {
+
+    if (cmhJsonFiles.length === 0) {
       return res.status(404).json({ error: 'No files found for this CMH today' });
     }
-    
-    // Extract data from individual files
-    cmhFiles.forEach(fileName => {
-      const filePath = path.join(FILES_DIR, fileName);
-      const fileContent = fs.readFileSync(filePath, 'utf8');
-      
-      // Extract data from the individual file (this is a simplified approach)
-      // In a real implementation, you might want to store the original data separately
-      const parts = fileName.replace('.html', '').split('_');
-      const title = parts[2];
-      
-      // For demo purposes, we'll create mock data - you should store the original data
-      filesToCombine.push({
-        title,
-        seedsInput: "99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99\n99", // Mock data
-        activeInput: "80\n97\n83\n91\n99\n99\n99\n99\n94\n96\n98\n98\n96\n97\n98", // Mock data
-        sessionsOutInput: "All sessions completed successfully",
-        cmh
-      });
+
+    // Extract data from individual JSON files
+    cmhJsonFiles.forEach(jsonFileName => {
+      const jsonFilePath = path.join(FILES_DIR, jsonFileName);
+      const jsonContent = fs.readFileSync(jsonFilePath, 'utf8');
+      try {
+        const data = JSON.parse(jsonContent);
+        filesToCombine.push(data);
+      } catch (err) {
+        // skip invalid JSON
+      }
     });
-    
+
     // Generate combined HTML
     const combinedHTML = generateCombinedHTML(cmh, filesToCombine);
-    const combinedFileName = `${today}_${cmh}_COMBINED.html`;
-    const combinedFilePath = path.join(FILES_DIR, combinedFileName);
-    
-    // Save combined file
-    fs.writeFileSync(combinedFilePath, combinedHTML);
-    
-    res.json({ 
-      success: true, 
+
+    // Do NOT save combined file, just return HTML in response
+    res.json({
+      success: true,
       message: 'Combined file generated successfully',
-      fileName: combinedFileName,
-      filePath: combinedFilePath,
       cmh: cmh,
       cmhName: cmhConfigs[cmh].name,
-      includedReports: cmhFiles.length
+      includedReports: filesToCombine.length,
+      combinedHTML
     });
-    
+
   } catch (error) {
     res.status(500).json({ error: 'Failed to generate combined file: ' + error.message });
   }
@@ -1056,52 +1111,64 @@ app.post('/api/generate-combined-file', (req, res) => {
 app.post('/api/send-cmh-to-telegram', async (req, res) => {
   try {
     const { cmh } = req.body;
-    
+
     if (!cmhConfigs[cmh]) {
       return res.status(400).json({ error: 'Invalid CMH selection' });
     }
-    
+
     const { BOT_TOKEN, CHAT_ID, name } = cmhConfigs[cmh];
     const today = getTodayDateString();
-    
-    // First, generate the combined file
+
+    // Always generate and save the combined file before sending
+    // Read all individual JSON files for this CMH
+    const fileNames = fs.readdirSync(FILES_DIR);
+    const cmhJsonFiles = fileNames.filter(fileName =>
+      fileName.startsWith(today) && fileName.includes(`_${cmh}_`) && fileName.endsWith('.json')
+    );
+
+    if (cmhJsonFiles.length === 0) {
+      return res.status(404).json({ error: 'No files found for this CMH today' });
+    }
+
+    // Extract data from individual JSON files
+    const filesToCombine = [];
+    cmhJsonFiles.forEach(jsonFileName => {
+      const jsonFilePath = path.join(FILES_DIR, jsonFileName);
+      const jsonContent = fs.readFileSync(jsonFilePath, 'utf8');
+      try {
+        const data = JSON.parse(jsonContent);
+        filesToCombine.push(data);
+      } catch (err) {
+        // skip invalid JSON
+      }
+    });
+
+    // Generate combined HTML
+    const combinedHTML = generateCombinedHTML(cmh, filesToCombine);
     const combinedFileName = `${today}_${cmh}_COMBINED.html`;
     const combinedFilePath = path.join(FILES_DIR, combinedFileName);
-    
-    // Check if combined file exists, if not generate it
-    if (!fs.existsSync(combinedFilePath)) {
-      // Trigger combined file generation
-      const generateResponse = await fetch(`http://localhost:${PORT}/api/generate-combined-file`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cmh })
-      });
-      
-      if (!generateResponse.ok) {
-        return res.status(500).json({ error: 'Failed to generate combined file' });
-      }
-    }
-    
+    fs.writeFileSync(combinedFilePath, combinedHTML);
+
     // Send the combined file
     const formData = new FormData();
     formData.append('chat_id', CHAT_ID);
     formData.append('document', fs.createReadStream(combinedFilePath));
     formData.append('caption', `📊 ${name} - Combined Reports\nAll consumption reports in one file - Generated on ${new Date().toLocaleDateString()}`);
-    
+
     const response = await axios.post(
       `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`,
       formData,
       { headers: formData.getHeaders() }
     );
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: `Combined file sent successfully for ${name}`,
       cmh: cmh,
       cmhName: name,
       fileName: combinedFileName
     });
-    
+
   } catch (error) {
     res.status(500).json({ error: 'Failed to send combined file: ' + error.message });
   }
@@ -1149,14 +1216,48 @@ app.get('/api/download/:fileName', (req, res) => {
   try {
     const fileName = req.params.fileName;
     const filePath = path.join(FILES_DIR, fileName);
-    
+
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'File not found' });
     }
-    
+
     res.download(filePath);
   } catch (error) {
     res.status(500).json({ error: 'Failed to download file' });
+  }
+});
+
+// Delete file (HTML and matching JSON)
+app.delete('/api/files/:fileName', (req, res) => {
+  try {
+    const fileName = req.params.fileName;
+    const filePath = path.join(FILES_DIR, fileName);
+    let deletedHtml = false;
+    let deletedJson = false;
+
+    // Delete HTML file
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      deletedHtml = true;
+    }
+
+    // Delete matching JSON file
+    if (fileName.endsWith('.html')) {
+      const jsonFileName = fileName.replace(/\.html$/, '.json');
+      const jsonFilePath = path.join(FILES_DIR, jsonFileName);
+      if (fs.existsSync(jsonFilePath)) {
+        fs.unlinkSync(jsonFilePath);
+        deletedJson = true;
+      }
+    }
+
+    if (deletedHtml || deletedJson) {
+      res.json({ success: true, deletedHtml, deletedJson });
+    } else {
+      res.status(404).json({ error: 'File(s) not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete file(s): ' + error.message });
   }
 });
 

@@ -330,20 +330,6 @@ const sendToTelegram = async () => {
                     Download
                   </button>
                   <button
-                    onClick={() => setSelectedFile(file)}
-                    style={{
-                      background: '#0069d9',
-                      color: 'white',
-                      border: 'none',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Preview
-                  </button>
-                  <button
                     onClick={() => deleteFile(file.fileName)}
                     style={{
                       background: '#dc3545',
@@ -359,28 +345,6 @@ const sendToTelegram = async () => {
                   </button>
                 </div>
               ))}
-            </div>
-          )}
-          {/* Preview area for selected file */}
-          {selectedFile && (
-            <div style={{ marginTop: '12px', border: '1px solid #e1e5e9', borderRadius: '6px', overflow: 'hidden' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#f1f3f5' }}>
-                <div>
-                  <strong>{selectedFile.cmhName}</strong>
-                  <div style={{ fontSize: '12px', color: '#495057' }}>{selectedFile.title}</div>
-                </div>
-                <div>
-                  <button onClick={() => setSelectedFile(null)} style={{ marginRight: '8px' }}>Close</button>
-                  <a href={`http://localhost:5000${selectedFile.viewUrl}`} target="_blank" rel="noreferrer">
-                    <button>Open in new tab</button>
-                  </a>
-                </div>
-              </div>
-              <iframe
-                title={`preview-${selectedFile.fileName}`}
-                src={`http://localhost:5000${selectedFile.viewUrl}`}
-                style={{ width: '100%', height: '400px', border: 'none' }}
-              />
             </div>
           )}
         </div>

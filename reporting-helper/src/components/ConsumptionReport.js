@@ -9,7 +9,6 @@ const ConsumptionReport = () => {
   const [tableData, setTableData] = useState([]);
   const [totals, setTotals] = useState({ seeds: 0, active: 0, blocked: 0 });
   const [isSending, setIsSending] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [selectedCMH, setSelectedCMH] = useState('cmh1');
   const [todayFiles, setTodayFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -38,8 +37,41 @@ const ConsumptionReport = () => {
   const availableTitles = ['IP', 'IP2', 'OFFER AUTO', 'OFFER BY REQUEST'];
 
   useEffect(() => {
-    generateTableAndChart();
+    const initializeOnMount = () => {
+      const seedsValues = parseInput(seedsInput);
+      const activeValues = parseInput(activeInput);
+      
+      if (seedsValues.length === activeValues.length) {
+        let totalSeeds = 0;
+        let totalActive = 0;
+        let totalBlocked = 0;
+        
+        const newTableData = seedsValues.map((seeds, i) => {
+          const seedsNum = parseInt(seeds) || 0;
+          const activeNum = parseInt(activeValues[i]) || 0;
+          const blockedNum = seedsNum - activeNum;
+          
+          totalSeeds += seedsNum;
+          totalActive += activeNum;
+          totalBlocked += blockedNum;
+          
+          return {
+            dropNumber: i + 1,
+            seeds: seedsNum,
+            active: activeNum,
+            blocked: blockedNum
+          };
+        });
+        
+        setTableData(newTableData);
+        setTotals({ seeds: totalSeeds, active: totalActive, blocked: totalBlocked });
+        generateChart(newTableData);
+      }
+    };
+    
+    initializeOnMount();
     loadTodayFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadTodayFiles = () => {
@@ -69,7 +101,7 @@ const ConsumptionReport = () => {
                 .filter(value => value !== '');
   };
 
-  const generateTableAndChart = () => {
+  const generateTableAndChart = async () => {
     const seedsValues = parseInput(seedsInput);
     const activeValues = parseInput(activeInput);
     
@@ -102,6 +134,58 @@ const ConsumptionReport = () => {
     setTableData(newTableData);
     setTotals({ seeds: totalSeeds, active: totalActive, blocked: totalBlocked });
     generateChart(newTableData);
+    
+    // Now save the file to storage after generating table and chart
+    await saveFileToStorageAfterGeneration();
+  };
+
+  const saveFileToStorageAfterGeneration = async () => {
+    if (!availableTitles.includes(title)) {
+      alert('Please select a valid title from the dropdown');
+      return;
+    }
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const fileName = `${today}_${selectedCMH}_${title}.html`;
+      const cmhName = cmhConfigs[selectedCMH]?.name || selectedCMH;
+
+      // Generate HTML content using the same function as backend
+      const htmlContent = generateHTMLContent({
+        title,
+        seedsInput,
+        activeInput,
+        sessionsOutInput,
+        cmh: selectedCMH
+      });
+
+      // Create file object
+      const newFile = {
+        fileName,
+        title,
+        cmh: selectedCMH,
+        cmhName,
+        createdAt: new Date().toISOString(),
+        htmlContent,
+        // Store raw data for combined reports
+        seedsInput,
+        activeInput,
+        sessionsOutInput
+      };
+
+      // Update files list
+      const updatedFiles = [...todayFiles.filter(f => 
+        !(f.cmh === selectedCMH && f.title === title)
+      ), newFile];
+      
+      setTodayFiles(updatedFiles);
+      saveFilesToStorage(updatedFiles);
+
+      alert('Table, Chart and File generated and saved successfully!');
+    } catch (error) {
+      console.error('Error saving file:', error);
+      alert('Error saving file. Please check console for details.');
+    }
   };
 
   const generateChart = (data) => {
@@ -1208,58 +1292,6 @@ const ConsumptionReport = () => {
   `;
   };
 
-  const generateAndSaveFile = async () => {
-    if (!availableTitles.includes(title)) {
-      alert('Please select a valid title from the dropdown');
-      return;
-    }
-
-    setIsGenerating(true);
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const fileName = `${today}_${selectedCMH}_${title}.html`;
-      const cmhName = cmhConfigs[selectedCMH]?.name || selectedCMH;
-
-      // Generate HTML content using the same function as backend
-      const htmlContent = generateHTMLContent({
-        title,
-        seedsInput,
-        activeInput,
-        sessionsOutInput,
-        cmh: selectedCMH
-      });
-
-      // Create file object
-      const newFile = {
-        fileName,
-        title,
-        cmh: selectedCMH,
-        cmhName,
-        createdAt: new Date().toISOString(),
-        htmlContent,
-        // Store raw data for combined reports
-        seedsInput,
-        activeInput,
-        sessionsOutInput
-      };
-
-      // Update files list
-      const updatedFiles = [...todayFiles.filter(f => 
-        !(f.cmh === selectedCMH && f.title === title)
-      ), newFile];
-      
-      setTodayFiles(updatedFiles);
-      saveFilesToStorage(updatedFiles);
-
-      alert('File generated and saved successfully!');
-    } catch (error) {
-      console.error('Error generating file:', error);
-      alert('Error generating file. Please check console for details.');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   // Telegram sending function (replaces backend API call)
   const sendToTelegramHandler = async () => {
     if (todayFiles.length === 0) {
@@ -1517,23 +1549,6 @@ const ConsumptionReport = () => {
             </button>
             <button id="clear-btn" className="btn-clear" onClick={clearData}>
               Clear
-            </button>
-            <button 
-              id="save-btn" 
-              className="btn-save" 
-              onClick={generateAndSaveFile}
-              disabled={isGenerating}
-              style={{
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: 'var(--border-radius)',
-                cursor: isGenerating ? 'not-allowed' : 'pointer',
-                opacity: isGenerating ? 0.6 : 1
-              }}
-            >
-              {isGenerating ? 'Saving...' : 'Save to Storage'}
             </button>
             <button 
               id="telegram-btn" 

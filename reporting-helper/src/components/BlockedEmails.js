@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { TYPES, COLORS } from '../utils/constants';
 import '../styles/App.css';
 

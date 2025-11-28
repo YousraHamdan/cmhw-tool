@@ -3,74 +3,67 @@
  * Frontend version - prepares files for Telegram sending
  */
 
-const telegramConfigs = {
-  cmh1: {
-    BOT_TOKEN: "8264293111:AAF_WCJJLabD5S3alNmgNvQOuGu3zukzoRs",
-    CHAT_ID: "8304177747",
-    name: "test"
-  },
-  cmh2: {
-    BOT_TOKEN: "8529644027:AAEVaCDf4EMOKgu0oalJkD94tEISKsa3NzY",
-    CHAT_ID: "8304177747",
-    name: "CMH 2"
-  },
-  cmh3: {
-    BOT_TOKEN: "8229900745:AAH4j_U_10-pWaC-gyeQOa0WIFBrv36pRY8",
-    CHAT_ID: "8304177747",
-    name: "CMH 3"
-  }
-};
+import { cmhConfigs } from './htmlGenerator';
 
 /**
  * Get Telegram bot config for a CMH
  */
 export const getTelegramConfig = (cmh) => {
-  return telegramConfigs[cmh] || null;
+  return cmhConfigs[cmh] || null;
 };
 
 /**
- * Send file to Telegram (requires backend or external service)
- * This creates a mock implementation that shows the process
- * For production, integrate with your backend server
+ * Send combined HTML file to Telegram
+ * Creates FormData with HTML blob and sends via Telegram Bot API
  */
-export const sendToTelegram = async (cmh, htmlContent, fileName) => {
+export const sendToTelegram = async (cmh, combinedHTML, cmhFiles) => {
   try {
     const config = getTelegramConfig(cmh);
     if (!config) {
       throw new Error('Invalid CMH configuration');
     }
 
-    // Option 1: If you have a backend endpoint, use this:
-    // return await sendViaBackend(cmh, htmlContent, fileName);
+    const { BOT_TOKEN, CHAT_ID, name } = config;
+    const today = new Date().toISOString().split('T')[0];
+    const combinedFileName = `${today}_${cmh}_COMBINED.html`;
 
-    // Option 2: For frontend-only approach, download file locally for user to send
-    // This is a practical solution for Telegram integration
-    const message = `
-    ⚠️ TELEGRAM INTEGRATION NOTE:
+    // Create FormData for Telegram API
+    const formData = new FormData();
+    formData.append('chat_id', CHAT_ID);
     
-    To send files to Telegram from a frontend-only app, you have two options:
+    // Create blob from HTML content
+    const blob = new Blob([combinedHTML], { type: 'text/html' });
+    formData.append('document', blob, combinedFileName);
     
-    1. RECOMMENDED: Use a backend service (re-enable your Express backend on port 5000)
-    2. ALTERNATIVE: Download the file and send manually to Telegram
-    
-    File prepared: ${fileName}
-    Ready for upload to: Telegram Chat ${config.CHAT_ID}
-    CMH: ${config.name}
-    `;
+    formData.append('caption', `📊 ${name} - Combined Reports\nAll consumption reports in one file - Generated on ${new Date().toLocaleDateString()}`);
 
-    console.log(message);
-    return {
-      success: true,
-      message: `File prepared for Telegram: ${fileName}`,
-      warning: 'For Telegram integration, please ensure your backend server is running on port 5000',
-      cmh: cmh,
-      cmhName: config.name
-    };
+    // Send to Telegram using fetch
+    const response = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`,
+      {
+        method: 'POST',
+        body: formData
+      }
+    );
+
+    const result = await response.json();
+
+    if (response.ok && result.ok) {
+      return {
+        success: true,
+        message: `Combined file sent successfully for ${name}`,
+        cmh: cmh,
+        cmhName: name
+      };
+    } else {
+      throw new Error(result.description || 'Unknown error from Telegram API');
+    }
   } catch (error) {
     console.error('Telegram send error:', error);
     return {
       success: false,
-      error: error.message
+      error: error.message,
+      cmh: cmh
     };
   }
 };
@@ -79,7 +72,7 @@ export const sendToTelegram = async (cmh, htmlContent, fileName) => {
  * Get all Telegram configs
  */
 export const getAllTelegramConfigs = () => {
-  return telegramConfigs;
+  return cmhConfigs;
 };
 
 const telegramModule = {

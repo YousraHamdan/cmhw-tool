@@ -1,13 +1,13 @@
 /**
  * HTML generation utilities for consumption reports
- * Enhanced with animations, interactive elements, and modern aesthetics
+ * Enhanced with improved visibility, spacing, and animations
  */
 
 export const cmhConfigs = {
   cmh1: {
-    BOT_TOKEN: "8264293111:AAF_WCJJLabD5S3alNmgNvQOuGu3zukzoRs",
-    CHAT_ID: "8304177747",
-    name: "CMH 1",
+    BOT_TOKEN: "7798410444:AAE5jRUbMcXQ-ndZp8OUq14Vc27LeR_0BNQ",
+    CHAT_ID: "-1002480536350",
+    name: "Test",
     color: "#3B82F6"
   },
   cmh2: {
@@ -87,7 +87,7 @@ export const generateTableData = (seedsInput, activeInput, sessionsOutInput) => 
 };
 
 /**
- * Generate individual report HTML content - ENHANCED WITH ANIMATIONS
+ * Generate individual report HTML content - IMPROVED VISIBILITY & SPACING
  */
 export const generateHTMLContent = (data) => {
   const { title, seedsInput, activeInput, sessionsOutInput, cmh } = data;
@@ -135,8 +135,9 @@ export const generateHTMLContent = (data) => {
     line-height: 1.4; 
     padding: 8px; 
     font-size: 11px; 
-    height: 100vh; 
-    overflow: hidden; 
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     animation: fadeIn 0.8s ease-out;
   }
   
@@ -148,16 +149,16 @@ export const generateHTMLContent = (data) => {
   .container { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
-    gap: 12px; 
-    height: 100%; 
-    max-height: 100vh; 
+    gap: 16px; 
+    flex: 1;
+    margin-bottom: 20px;
   }
   
   .header { 
     grid-column: 1 / -1; 
     text-align: center; 
-    margin-bottom: 8px; 
-    padding: 12px; 
+    margin-bottom: 16px; 
+    padding: 16px; 
     background: white; 
     border-radius: 12px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
@@ -194,7 +195,7 @@ export const generateHTMLContent = (data) => {
     padding: 6px 16px; 
     border-radius: 6px; 
     font-size: 0.7rem; 
-    margin-bottom: 4px; 
+    margin-bottom: 8px; 
     display: inline-block; 
     font-weight: 600; 
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
@@ -214,7 +215,7 @@ export const generateHTMLContent = (data) => {
     -webkit-background-clip: text; 
     background-clip: text; 
     color: transparent; 
-    margin-bottom: 4px; 
+    margin-bottom: 6px; 
     position: relative;
     display: inline-block;
   }
@@ -244,13 +245,13 @@ export const generateHTMLContent = (data) => {
   .left-panel { 
     display: flex; 
     flex-direction: column; 
-    gap: 12px; 
+    gap: 16px; 
   }
   
   .stats-panel { 
     background: white; 
     border-radius: 12px; 
-    padding: 12px; 
+    padding: 16px; 
     border: 1px solid #e5e7eb; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
     animation: slideInLeft 0.6s ease-out 0.2s both;
@@ -262,8 +263,8 @@ export const generateHTMLContent = (data) => {
   }
   
   .stat-item { 
-    margin-bottom: 8px; 
-    padding: 6px 0; 
+    margin-bottom: 10px; 
+    padding: 8px 0; 
     border-bottom: 1px solid #f3f4f6; 
     display: flex; 
     justify-content: space-between; 
@@ -275,8 +276,8 @@ export const generateHTMLContent = (data) => {
     transform: translateX(5px);
     background-color: #f8fafc;
     border-radius: 6px;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   
   .stat-value { 
@@ -305,27 +306,28 @@ export const generateHTMLContent = (data) => {
     background: white; 
     border-radius: 12px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
-    padding: 12px; 
+    padding: 16px; 
     border: 1px solid #e5e7eb; 
     flex-grow: 1; 
     display: flex; 
     flex-direction: column; 
+    align-items: center;
     animation: slideInLeft 0.6s ease-out 0.4s both;
   }
   
   .diagram-title { 
     font-size: 0.85rem; 
     font-weight: 600; 
-    margin-bottom: 8px; 
+    margin-bottom: 12px; 
     color: #374151; 
     text-align: center; 
   }
   
   .chart-container { 
     position: relative; 
-    width: 140px; 
-    height: 140px; 
-    margin: 0 auto; 
+    width: 160px; 
+    height: 160px; 
+    margin: 0 auto 16px; 
   }
   
   .pie-chart { 
@@ -352,8 +354,8 @@ export const generateHTMLContent = (data) => {
     top: 50%; 
     left: 50%; 
     transform: translate(-50%, -50%); 
-    width: 60px; 
-    height: 60px; 
+    width: 70px; 
+    height: 70px; 
     background: white; 
     border-radius: 50%; 
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.1); 
@@ -386,14 +388,15 @@ export const generateHTMLContent = (data) => {
   }
   
   .diagram-legend { 
-    margin-top: 10px; 
+    width: 100%;
+    max-width: 200px;
   }
   
   .legend-item { 
     display: flex; 
     align-items: center; 
-    margin-bottom: 6px; 
-    padding: 6px 8px; 
+    margin-bottom: 8px; 
+    padding: 8px; 
     border-radius: 6px; 
     background: #f8fafc; 
     border: 1px solid #e5e7eb; 
@@ -416,10 +419,10 @@ export const generateHTMLContent = (data) => {
   }
   
   .legend-color { 
-    width: 10px; 
-    height: 10px; 
+    width: 12px; 
+    height: 12px; 
     border-radius: 50%; 
-    margin-right: 6px; 
+    margin-right: 8px; 
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); 
   }
   
@@ -432,21 +435,21 @@ export const generateHTMLContent = (data) => {
   .legend-percentage { 
     font-weight: 700; 
     color: ${cmhColor}; 
-    margin-left: 3px; 
+    margin-left: 4px; 
     font-size: 0.7rem; 
   }
   
   .legend-count { 
     font-size: 0.65rem; 
     color: #6b7280; 
-    margin-left: 3px; 
+    margin-left: 4px; 
   }
   
   .table-container { 
     background: white; 
     border-radius: 12px; 
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
-    padding: 12px; 
+    padding: 16px; 
     border: 1px solid #e5e7eb; 
     overflow: hidden; 
     height: 100%; 
@@ -475,7 +478,7 @@ export const generateHTMLContent = (data) => {
   }
   
   th { 
-    padding: 8px 6px; 
+    padding: 10px 8px; 
     text-align: left; 
     border-bottom: 2px solid #e5e7eb; 
     font-weight: 600; 
@@ -497,7 +500,7 @@ export const generateHTMLContent = (data) => {
   th:nth-child(4) { background: linear-gradient(135deg, #dc2626, #b91c1c); }
   
   td { 
-    padding: 6px 4px; 
+    padding: 8px 6px; 
     border-bottom: 1px solid #f3f4f6; 
     font-size: 0.65rem; 
     transition: all 0.2s ease;
@@ -535,14 +538,12 @@ export const generateHTMLContent = (data) => {
   
   .totals-row td { 
     border-top: 2px solid #e5e7eb; 
-    padding: 8px 4px; 
+    padding: 10px 6px; 
   }
   
   footer { 
-    grid-column: 1 / -1; 
     text-align: center; 
-    margin-top: 8px; 
-    padding: 6px; 
+    padding: 12px; 
     color: #6b7280; 
     border-top: 1px solid #e5e7eb; 
     font-size: 0.65rem; 
@@ -550,6 +551,7 @@ export const generateHTMLContent = (data) => {
     border-radius: 6px; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     animation: fadeIn 1s ease-out 1.6s both;
+    margin-top: auto;
   }
   
   /* Floating particles background */
@@ -626,7 +628,7 @@ export const generateHTMLContent = (data) => {
     </div>
     
     <div class="table-container">
-      <h3 style="margin-bottom: 8px; color: #374151;">Detailed Data</h3>
+      <h3 style="margin-bottom: 12px; color: #374151;">Detailed Data</h3>
       <div class="table-wrapper">
         <table class="${seedsValues.length > 15 ? 'compact-table' : ''}">
           <thead>
@@ -661,9 +663,9 @@ export const generateHTMLContent = (data) => {
         </table>
       </div>
     </div>
-    
-    <footer><p>CMHW - ${cmhName}</p></footer>
   </div>
+  
+  <footer><p>CMHW - ${cmhName} | Generated on ${new Date().toLocaleDateString('en-GB')}</p></footer>
 
   <script>
     // Create floating particles
@@ -716,7 +718,7 @@ export const generateHTMLContent = (data) => {
 };
 
 /**
- * Generate combined HTML report with enhanced animations and interactivity
+ * Generate combined HTML report with improved visibility and spacing
  */
 export const generateCombinedHTML = (cmh, filesData) => {
   const cmhName = cmhConfigs[cmh]?.name || cmh;
@@ -802,6 +804,7 @@ export const generateCombinedHTML = (cmh, filesData) => {
                         'pulse-slow': 'pulse 3s infinite',
                         'bounce-gentle': 'bounceGentle 2s infinite',
                         'float': 'float 6s ease-in-out infinite',
+                        'chart-grow': 'chartGrow 1.5s ease-out',
                     },
                     keyframes: {
                         fadeIn: {
@@ -819,6 +822,10 @@ export const generateCombinedHTML = (cmh, filesData) => {
                         float: {
                             '0%, 100%': { transform: 'translateY(0px)' },
                             '50%': { transform: 'translateY(-10px)' }
+                        },
+                        chartGrow: {
+                            '0%': { transform: 'scale(0.8) rotate(-90deg)', opacity: '0' },
+                            '100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' }
                         }
                     }
                 }
@@ -829,6 +836,17 @@ export const generateCombinedHTML = (cmh, filesData) => {
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         * { font-family: 'Inter', sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-bottom: 2rem;
+        }
 
         .chart-container {
             position: relative;
@@ -1005,6 +1023,28 @@ export const generateCombinedHTML = (cmh, filesData) => {
         .stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
         .stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
         .stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+
+        .chart-animation {
+            animation: chartGrow 1.5s ease-out;
+        }
+
+        .view-report-btn {
+            background: ${cmhColor} !important;
+            color: white !important;
+            border: 2px solid ${cmhColor} !important;
+        }
+
+        .view-report-btn:hover {
+            background: white !important;
+            color: ${cmhColor} !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .report-header {
+            background: linear-gradient(135deg, ${cmhColor}, #1e40af) !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800 text-sm min-h-screen relative overflow-x-hidden">
@@ -1013,11 +1053,11 @@ export const generateCombinedHTML = (cmh, filesData) => {
     <div class="floating-shape w-48 h-48 bg-green-200 bottom-20 -right-16" style="animation-delay: -5s;"></div>
     <div class="floating-shape w-32 h-32 bg-purple-200 top-1/3 right-1/4" style="animation-delay: -10s;"></div>
 
-    <!-- Fixed Top Bar - ENHANCED WITH ANIMATIONS -->
+    <!-- Fixed Top Bar - IMPROVED SPACING -->
     <div class="bg-white/90 backdrop-blur-sm px-6 py-4 flex justify-between items-center shadow-lg border-b border-gray-200 fixed top-0 left-0 right-0 z-50 animate-slide-up">
         <!-- Left Section -->
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-${cmhColor.replace('#', '')} to-blue-800 rounded-2xl flex items-center justify-center shadow-lg glow animate-bounce-gentle">
+            <div class="w-12 h-12 bg-gradient-to-br from-[${cmhColor}] to-blue-800 rounded-2xl flex items-center justify-center shadow-lg glow animate-bounce-gentle">
                 <i class="fas fa-chart-pie text-white text-xl"></i>
             </div>
             <div class="flex flex-col">
@@ -1030,7 +1070,7 @@ export const generateCombinedHTML = (cmh, filesData) => {
         <div class="flex items-center gap-8">
             <div class="text-center">
                 <div class="text-gray-500 text-xs uppercase tracking-wider font-semibold mb-1">Entity</div>
-                <div class="text-${cmhColor.replace('#', '')} font-bold text-lg uppercase" id="ENTITY">${cmhName}</div>
+                <div class="text-[${cmhColor}] font-bold text-lg uppercase" id="ENTITY">${cmhName}</div>
             </div>
             <div class="h-8 w-px bg-gray-300"></div>
             <div class="text-center">
@@ -1050,49 +1090,49 @@ export const generateCombinedHTML = (cmh, filesData) => {
                 <div class="text-gray-500 text-xs uppercase tracking-wider font-semibold mb-1">Date & Time</div>
                 <div class="text-gray-900 font-bold">
                     <span id="current_date">${currentDate}</span> • 
-                    <span id="current_hour" class="text-${cmhColor.replace('#', '')}">${currentHour}:00</span>
+                    <span id="current_hour" class="text-[${cmhColor}]">${currentHour}:00</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="flex min-h-screen pt-16">
-        <!-- Fixed Sidebar - ENHANCED WITH INTERACTIVITY -->
-        <div class="w-64 bg-white/80 backdrop-blur-sm p-5 border-r border-border-light hidden lg:block fixed top-16 left-0 bottom-0 z-40 overflow-y-auto animate-slide-up" style="animation-delay: 0.1s;">
-            <div class="mb-7">
-                <div class="text-gray-500 text-xs uppercase tracking-wider font-semibold mb-3">Quick Stats</div>
-                <div class="sidebar-item bg-white p-4 rounded-lg mb-3 border-l-4 border-${cmhColor.replace('#', '')} shadow-sm hover:shadow-md">
+    <div class="flex min-h-screen pt-20"> <!-- Increased padding-top for more space -->
+        <!-- Fixed Sidebar - IMPROVED SPACING -->
+        <div class="w-64 bg-white/80 backdrop-blur-sm p-6 border-r border-border-light hidden lg:block fixed top-20 left-0 bottom-0 z-40 overflow-y-auto animate-slide-up" style="animation-delay: 0.1s;">
+            <div class="mb-8"> <!-- Increased margin-bottom -->
+                <div class="text-gray-500 text-xs uppercase tracking-wider font-semibold mb-4">Quick Stats</div> <!-- Increased margin-bottom -->
+                <div class="sidebar-item bg-white p-4 rounded-lg mb-4 border-l-4 border-[${cmhColor}] shadow-sm hover:shadow-md"> <!-- Increased margin-bottom -->
                     <div class="text-gray-500 text-xs mb-1">Total Reports :</div>
                     <div class="text-gray-800 font-bold text-xl counter">${filesData.length}</div>
                 </div>
                 <!-- Blocked Statistics -->
-                <div class="sidebar-item bg-white p-4 rounded-lg mb-3 border-l-4 border-red-500 shadow-sm hover:shadow-md">
+                <div class="sidebar-item bg-white p-4 rounded-lg mb-4 border-l-4 border-red-500 shadow-sm hover:shadow-md"> <!-- Increased margin-bottom -->
                     <div class="text-gray-500 text-xs mb-1">Total Blocked :</div>
                     <div class="text-gray-800 font-bold text-xl counter">${totalBlocked}</div>
                 </div>
-                <div class="sidebar-item bg-white p-4 rounded-lg mb-3 border-l-4 border-orange-500 shadow-sm hover:shadow-md">
+                <div class="sidebar-item bg-white p-4 rounded-lg mb-4 border-l-4 border-orange-500 shadow-sm hover:shadow-md"> <!-- Increased margin-bottom -->
                     <div class="text-gray-500 text-xs mb-1">Avg Block Rate :</div>
                     <div class="text-gray-800 font-bold text-xl counter">${avgBlockRate}%</div>
                 </div>
-                <div class="sidebar-item bg-white p-4 rounded-lg mb-3 border-l-4 border-purple-500 shadow-sm hover:shadow-md">
+                <div class="sidebar-item bg-white p-4 rounded-lg mb-4 border-l-4 border-purple-500 shadow-sm hover:shadow-md"> <!-- Increased margin-bottom -->
                     <div class="text-gray-500 text-xs mb-1">Total Seeds :</div>
                     <div class="text-gray-800 font-bold text-xl counter">${totalSeeds}</div>
                 </div>
             </div>
             
-            <div>
-                <div class="text-gray-500 text-xs uppercase tracking-wider font-semibold mb-3">Report Summary</div>
-                <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div class="text-green-600 text-sm font-semibold mb-2 flex items-center">
+            <div class="mt-8"> <!-- Added margin-top -->
+                <div class="text-gray-500 text-xs uppercase tracking-wider font-semibold mb-4">Report Summary</div> <!-- Increased margin-bottom -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200"> <!-- Increased padding -->
+                    <div class="text-green-600 text-sm font-semibold mb-3 flex items-center"> <!-- Increased margin-bottom -->
                         <i class="fas fa-check-circle mr-2"></i> Active Seeds: ${totalActive}
                     </div>
-                    <div class="text-red-600 text-sm font-semibold flex items-center">
+                    <div class="text-red-600 text-sm font-semibold flex items-center mb-4"> <!-- Added margin-bottom -->
                         <i class="fas fa-times-circle mr-2"></i> Blocked Seeds: ${totalBlocked}
                     </div>
                     
                     <!-- Progress Bar -->
-                    <div class="mt-3">
-                        <div class="flex justify-between text-xs text-gray-600 mb-1">
+                    <div class="mt-4">
+                        <div class="flex justify-between text-xs text-gray-600 mb-2">
                             <span>Active: ${totalActive}</span>
                             <span>Blocked: ${totalBlocked}</span>
                         </div>
@@ -1102,35 +1142,20 @@ export const generateCombinedHTML = (cmh, filesData) => {
                     </div>
                 </div>
             </div>
-            
-            <!-- Navigation Help -->
-            <div class="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div class="text-blue-700 text-xs font-semibold mb-2 flex items-center">
-                    <i class="fas fa-info-circle mr-2"></i> Navigation Tips
-                </div>
-                <div class="text-blue-600 text-xs">
-                    <div class="flex items-center mb-1">
-                        <kbd class="bg-white px-1 rounded text-xs mr-2 border">←</kbd> Previous report
-                    </div>
-                    <div class="flex items-center">
-                        <kbd class="bg-white px-1 rounded text-xs mr-2 border">→</kbd> Next report
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Main Content Area -->
-        <div class="flex-1 bg-transparent p-5 overflow-y-auto lg:ml-64">
-            <!-- Navigation Tab Only - ENHANCED -->
-            <div class="bg-white/80 backdrop-blur-sm rounded-xl border border-border-light shadow-lg mb-5 animate-slide-up" style="animation-delay: 0.2s;">
-                <div class="p-4">
+        <div class="main-content flex-1 bg-transparent p-6 overflow-y-auto lg:ml-64"> <!-- Increased padding -->
+            <!-- Navigation Tab Only - IMPROVED -->
+            <div class="bg-white/80 backdrop-blur-sm rounded-xl border border-border-light shadow-lg mb-6 animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="p-5"> <!-- Increased padding -->
                     <!-- Tab Navigation -->
-                    <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
-                        <button class="tab-btn bg-${cmhColor.replace('#', '')}/10 text-${cmhColor.replace('#', '')} px-4 py-2 rounded-lg text-sm font-semibold transition-all active" onclick="window.showTab('resume')">
+                    <div class="flex gap-3 mb-8 overflow-x-auto pb-3"> <!-- Increased margins and padding -->
+                        <button class="tab-btn bg-[${cmhColor}]/10 text-[${cmhColor}] px-5 py-3 rounded-lg text-sm font-semibold transition-all active" onclick="window.showTab('resume')">
                             <i class="fas fa-chart-pie mr-2"></i>Resume Overview
                         </button>
                         ${filesData.map((file, index) => `
-                            <button class="tab-btn bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all" onclick="window.showTab('report${index}')">
+                            <button class="tab-btn bg-gray-100 text-gray-700 px-5 py-3 rounded-lg text-sm font-semibold transition-all" onclick="window.showTab('report${index}')">
                                 <i class="fas fa-file-alt mr-2"></i>${file.title}
                             </button>
                         `).join('')}
@@ -1138,33 +1163,33 @@ export const generateCombinedHTML = (cmh, filesData) => {
 
                     <!-- Resume Overview -->
                     <div id="resume" class="content-area active">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-animation">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 stagger-animation"> <!-- Increased gap -->
                             ${resumeData.map((data, index) => `
                                 <div class="report-card bg-white rounded-xl border border-border-light shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300" style="animation-delay: ${0.3 + index * 0.1}s">
-                                    <div class="bg-gradient-to-r from-${cmhColor.replace('#', '')} to-blue-500 text-white px-4 py-3 font-semibold text-sm flex justify-between items-center">
+                                    <div class="report-header px-5 py-4 font-semibold text-sm flex justify-between items-center"> <!-- Increased padding -->
                                         ${data.title}
                                         <span class="text-xs bg-white/20 px-2 py-1 rounded-full">${data.fileIndex + 1}/${filesData.length}</span>
                                     </div>
-                                    <div class="p-4">
+                                    <div class="p-5"> <!-- Increased padding -->
                                         <!-- Metric Cards -->
-                                        <div class="grid grid-cols-2 gap-3 mb-4">
-                                            <div class="stat-card p-3 rounded-lg border shadow-sm text-center bg-green-50 border-green-200">
+                                        <div class="grid grid-cols-2 gap-4 mb-6"> <!-- Increased gap and margin -->
+                                            <div class="stat-card p-4 rounded-lg border shadow-sm text-center bg-green-50 border-green-200"> <!-- Increased padding -->
                                                 <div class="text-green-600 font-bold text-xl counter">${data.totalActive}</div>
-                                                <div class="text-green-800 text-xs uppercase mt-1">Active Seeds</div>
+                                                <div class="text-green-800 text-xs uppercase mt-2">Active Seeds</div> <!-- Increased margin-top -->
                                             </div>
-                                            <div class="stat-card p-3 rounded-lg border shadow-sm text-center bg-red-50 border-red-200">
+                                            <div class="stat-card p-4 rounded-lg border shadow-sm text-center bg-red-50 border-red-200"> <!-- Increased padding -->
                                                 <div class="text-red-600 font-bold text-xl counter">${data.totalBlocked}</div>
-                                                <div class="text-red-800 text-xs uppercase mt-1">Blocked Seeds</div>
+                                                <div class="text-red-800 text-xs uppercase mt-2">Blocked Seeds</div> <!-- Increased margin-top -->
                                             </div>
                                         </div>
 
                                         <!-- Chart -->
-                                        <div class="chart-container flex items-center justify-center">
-                                            <div class="relative w-32 h-32">
-                                                <div class="pie-chart w-full h-full rounded-full shadow-lg" style="background: conic-gradient(#059669 0% ${data.activePercentage}%, #dc2626 ${data.activePercentage}% 100%)">
+                                        <div class="chart-container flex items-center justify-center mb-6"> <!-- Added margin-bottom -->
+                                            <div class="relative w-36 h-36"> <!-- Increased size -->
+                                                <div class="pie-chart w-full h-full rounded-full shadow-lg chart-animation" style="background: conic-gradient(#059669 0% ${data.activePercentage}%, #dc2626 ${data.activePercentage}% 100%)">
                                                     <div class="absolute inset-0 flex items-center justify-center">
-                                                        <div class="bg-white w-16 h-16 rounded-full flex flex-col items-center justify-center shadow-lg">
-                                                            <div class="text-${cmhColor.replace('#', '')} font-bold text-sm counter">${data.totalSeeds}</div>
+                                                        <div class="bg-white w-20 h-20 rounded-full flex flex-col items-center justify-center shadow-lg"> <!-- Increased size -->
+                                                            <div class="text-[${cmhColor}] font-bold text-sm counter">${data.totalSeeds}</div>
                                                             <div class="text-gray-500 text-xs">Total</div>
                                                         </div>
                                                     </div>
@@ -1173,7 +1198,7 @@ export const generateCombinedHTML = (cmh, filesData) => {
                                         </div>
 
                                         <!-- Legend -->
-                                        <div class="flex justify-center gap-4 mt-4">
+                                        <div class="flex justify-center gap-5 mb-6"> <!-- Increased gap and margin -->
                                             <div class="flex items-center gap-2">
                                                 <div class="w-3 h-3 bg-green-500 rounded-full shadow"></div>
                                                 <span class="text-xs text-gray-600">Active (${data.activePercentage}%)</span>
@@ -1185,8 +1210,8 @@ export const generateCombinedHTML = (cmh, filesData) => {
                                         </div>
 
                                         <!-- Details -->
-                                        <div class="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200"> <!-- Increased padding and margin -->
+                                            <div class="grid grid-cols-2 gap-3 text-xs"> <!-- Increased gap -->
                                                 <div class="text-gray-600">Total Seeds:</div>
                                                 <div class="text-gray-900 font-semibold text-right counter">${data.totalSeeds}</div>
                                                 <div class="text-gray-600">Sessions Out:</div>
@@ -1194,7 +1219,7 @@ export const generateCombinedHTML = (cmh, filesData) => {
                                             </div>
                                         </div>
 
-                                        <button class="w-full mt-4 bg-${cmhColor.replace('#', '')} hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-semibold transition-all nav-btn glow" onclick="window.viewReport(${data.fileIndex})">
+                                        <button class="view-report-btn w-full mt-6 py-3 rounded-lg text-sm font-semibold transition-all nav-btn glow" onclick="window.viewReport(${data.fileIndex})">
                                             <i class="fas fa-external-link-alt mr-2"></i>View Detailed Report
                                         </button>
                                     </div>
@@ -1228,49 +1253,49 @@ export const generateCombinedHTML = (cmh, filesData) => {
                         return `
                             <div id="report${index}" class="content-area">
                                 <div class="bg-white rounded-xl border border-border-light shadow-lg overflow-hidden animate-slide-up">
-                                    <div class="bg-gradient-to-r from-${cmhColor.replace('#', '')} to-blue-500 text-white px-5 py-4 font-semibold text-sm flex justify-between items-center">
+                                    <div class="report-header px-6 py-5 font-semibold text-sm flex justify-between items-center"> <!-- Increased padding -->
                                         <span>${file.title} - Detailed Consumption Report</span>
                                         <span class="text-xs bg-white/20 px-2 py-1 rounded-full">${index + 1}/${filesData.length}</span>
                                     </div>
-                                    <div class="p-5">
+                                    <div class="p-6"> <!-- Increased padding -->
                                         <!-- Stats Overview -->
-                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 stagger-animation">
-                                            <div class="stat-card p-4 rounded-lg border shadow-sm text-center bg-blue-50 border-blue-200">
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8 stagger-animation"> <!-- Increased gap and margin -->
+                                            <div class="stat-card p-5 rounded-lg border shadow-sm text-center bg-blue-50 border-blue-200"> <!-- Increased padding -->
                                                 <div class="text-blue-600 font-bold text-2xl counter">${totalSeeds}</div>
-                                                <div class="text-blue-800 text-xs uppercase mt-1">Total Seeds</div>
+                                                <div class="text-blue-800 text-xs uppercase mt-2">Total Seeds</div> <!-- Increased margin-top -->
                                             </div>
-                                            <div class="stat-card p-4 rounded-lg border shadow-sm text-center bg-green-50 border-green-200">
+                                            <div class="stat-card p-5 rounded-lg border shadow-sm text-center bg-green-50 border-green-200"> <!-- Increased padding -->
                                                 <div class="text-green-600 font-bold text-2xl counter">${totalActive}</div>
-                                                <div class="text-green-800 text-xs uppercase mt-1">Active Seeds</div>
+                                                <div class="text-green-800 text-xs uppercase mt-2">Active Seeds</div> <!-- Increased margin-top -->
                                             </div>
-                                            <div class="stat-card p-4 rounded-lg border shadow-sm text-center bg-red-50 border-red-200">
+                                            <div class="stat-card p-5 rounded-lg border shadow-sm text-center bg-red-50 border-red-200"> <!-- Increased padding -->
                                                 <div class="text-red-600 font-bold text-2xl counter">${totalBlocked}</div>
-                                                <div class="text-red-800 text-xs uppercase mt-1">Blocked Seeds</div>
+                                                <div class="text-red-800 text-xs uppercase mt-2">Blocked Seeds</div> <!-- Increased margin-top -->
                                             </div>
-                                            <div class="stat-card p-4 rounded-lg border shadow-sm text-center bg-purple-50 border-purple-200">
+                                            <div class="stat-card p-5 rounded-lg border shadow-sm text-center bg-purple-50 border-purple-200"> <!-- Increased padding -->
                                                 <div class="text-purple-600 font-bold text-2xl">${file.sessionsOutInput}</div>
-                                                <div class="text-purple-800 text-xs uppercase mt-1">Sessions Out</div>
+                                                <div class="text-purple-800 text-xs uppercase mt-2">Sessions Out</div> <!-- Increased margin-top -->
                                             </div>
                                         </div>
 
                                         <!-- Chart and Table Layout -->
-                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8"> <!-- Increased gap -->
                                             <!-- Chart Section -->
-                                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm">
-                                                <h3 class="text-gray-700 font-semibold mb-4 text-center">Consumption Distribution</h3>
-                                                <div class="chart-container">
-                                                    <div class="relative w-40 h-40 mx-auto">
-                                                        <div class="pie-chart w-full h-full rounded-full shadow-lg" style="background: conic-gradient(#059669 0% ${activePercentage}%, #dc2626 ${activePercentage}% 100%)">
+                                            <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 shadow-sm flex flex-col items-center"> <!-- Increased padding and centered -->
+                                                <h3 class="text-gray-700 font-semibold mb-6 text-center">Consumption Distribution</h3> <!-- Increased margin -->
+                                                <div class="chart-container flex justify-center">
+                                                    <div class="relative w-44 h-44"> <!-- Increased size -->
+                                                        <div class="pie-chart w-full h-full rounded-full shadow-lg chart-animation" style="background: conic-gradient(#059669 0% ${activePercentage}%, #dc2626 ${activePercentage}% 100%)">
                                                             <div class="absolute inset-0 flex items-center justify-center">
-                                                                <div class="bg-white w-20 h-20 rounded-full flex flex-col items-center justify-center shadow-lg">
-                                                                    <div class="text-${cmhColor.replace('#', '')} font-bold text-base counter">${totalSeeds}</div>
+                                                                <div class="bg-white w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-lg"> <!-- Increased size -->
+                                                                    <div class="text-[${cmhColor}] font-bold text-base counter">${totalSeeds}</div>
                                                                     <div class="text-gray-500 text-xs">Total</div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="flex justify-center gap-6 mt-4">
+                                                <div class="flex justify-center gap-6 mt-6"> <!-- Increased margin -->
                                                     <div class="flex items-center gap-2">
                                                         <div class="w-3 h-3 bg-green-500 rounded-full shadow"></div>
                                                         <span class="text-sm text-gray-600">Active: ${activePercentage}%</span>
@@ -1283,16 +1308,16 @@ export const generateCombinedHTML = (cmh, filesData) => {
                                             </div>
 
                                             <!-- Table Section -->
-                                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm">
-                                                <h3 class="text-gray-700 font-semibold mb-4 text-center">Detailed Drop Data</h3>
+                                            <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 shadow-sm"> <!-- Increased padding -->
+                                                <h3 class="text-gray-700 font-semibold mb-6 text-center">Detailed Drop Data</h3> <!-- Increased margin -->
                                                 <div class="table-scroll">
                                                     <table class="w-full text-xs border-collapse">
                                                         <thead>
-                                                            <tr class="bg-${cmhColor.replace('#', '')}/20">
-                                                                <th class="text-left p-2 text-${cmhColor.replace('#', '')} border-r rounded-tl-lg">Drop N°</th>
-                                                                <th class="text-center p-2 text-${cmhColor.replace('#', '')} border-r">Seeds</th>
-                                                                <th class="text-center p-2 text-${cmhColor.replace('#', '')} border-r">Active</th>
-                                                                <th class="text-center p-2 text-${cmhColor.replace('#', '')} rounded-tr-lg">Blocked</th>
+                                                            <tr class="bg-[${cmhColor}]/20">
+                                                                <th class="text-left p-3 text-[${cmhColor}] border-r rounded-tl-lg">Drop N°</th> <!-- Increased padding -->
+                                                                <th class="text-center p-3 text-[${cmhColor}] border-r">Seeds</th> <!-- Increased padding -->
+                                                                <th class="text-center p-3 text-[${cmhColor}] border-r">Active</th> <!-- Increased padding -->
+                                                                <th class="text-center p-3 text-[${cmhColor}] rounded-tr-lg">Blocked</th> <!-- Increased padding -->
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -1303,20 +1328,20 @@ export const generateCombinedHTML = (cmh, filesData) => {
                                                                 const delay = i * 0.03;
                                                                 return `
                                                                     <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors" style="animation: slideUp 0.5s ease-out ${delay}s both">
-                                                                        <td class="p-2 font-medium">${dropNumber}</td>
-                                                                        <td class="p-2 text-center">${seeds}</td>
-                                                                        <td class="p-2 text-center text-green-600 font-semibold">${active}</td>
-                                                                        <td class="p-2 text-center text-red-600 font-semibold">${blocked}</td>
+                                                                        <td class="p-3 font-medium">${dropNumber}</td> <!-- Increased padding -->
+                                                                        <td class="p-3 text-center">${seeds}</td> <!-- Increased padding -->
+                                                                        <td class="p-3 text-center text-green-600 font-semibold">${active}</td> <!-- Increased padding -->
+                                                                        <td class="p-3 text-center text-red-600 font-semibold">${blocked}</td> <!-- Increased padding -->
                                                                     </tr>
                                                                 `;
                                                             }).join('')}
                                                         </tbody>
                                                         <tfoot>
                                                             <tr class="bg-gray-100 font-semibold">
-                                                                <td class="p-2 rounded-bl-lg">TOTAL</td>
-                                                                <td class="p-2 text-center counter">${totalSeeds}</td>
-                                                                <td class="p-2 text-center text-green-600 counter">${totalActive}</td>
-                                                                <td class="p-2 text-center text-red-600 rounded-br-lg counter">${totalBlocked}</td>
+                                                                <td class="p-3 rounded-bl-lg">TOTAL</td> <!-- Increased padding -->
+                                                                <td class="p-3 text-center counter">${totalSeeds}</td> <!-- Increased padding -->
+                                                                <td class="p-3 text-center text-green-600 counter">${totalActive}</td> <!-- Increased padding -->
+                                                                <td class="p-3 text-center text-red-600 rounded-br-lg counter">${totalBlocked}</td> <!-- Increased padding -->
                                                             </tr>
                                                         </tfoot>
                                                     </table>
@@ -1330,16 +1355,15 @@ export const generateCombinedHTML = (cmh, filesData) => {
                     }).join('')}
                 </div>
             </div>
-
-            <!-- Footer -->
-            <div class="bg-white/80 backdrop-blur-sm p-4 text-center text-gray-500 text-xs border-t border-border-light mt-5 rounded-lg shadow animate-fade-in" style="animation-delay: 0.8s">
-                <div class="flex items-center justify-center">
-                    <i class="fas fa-heart text-red-400 mr-2 animate-pulse"></i>
-                    Report generated on ${currentDate} | Created by CMHW Team | 2025 all rights reserved
-                </div>
-            </div>
         </div>
     </div>
+
+    <!-- Footer - POSITIONED AT BOTTOM -->
+  <footer class="bg-white/80 backdrop-blur-sm p-4 text-center text-gray-500 text-xs border-t border-border-light rounded-lg shadow animate-fade-in mt-auto">
+    <div class="flex items-center justify-center">
+      Report generated on ${currentDate} | Created by CMHW Team | 2025 all rights reserved
+    </div>
+  </footer>
 
     <script>
         window.currentTab = 'resume';
@@ -1386,14 +1410,14 @@ export const generateCombinedHTML = (cmh, filesData) => {
             });
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
-                btn.classList.remove('bg-${cmhColor.replace('#', '')}/10', 'text-${cmhColor.replace('#', '')}');
+                btn.classList.remove('bg-[${cmhColor}]/10', 'text-[${cmhColor}]');
                 btn.classList.add('bg-gray-100', 'text-gray-700');
             });
             
             document.getElementById(tabName).classList.add('active');
             const btnSelector = document.querySelector(\`button[onclick="window.showTab('\${tabName}')"]\`);
             if (btnSelector) {
-                btnSelector.classList.add('active', 'bg-${cmhColor.replace('#', '')}/10', 'text-${cmhColor.replace('#', '')}');
+                btnSelector.classList.add('active', 'bg-[${cmhColor}]/10', 'text-[${cmhColor}]');
                 btnSelector.classList.remove('bg-gray-100', 'text-gray-700');
             }
             
@@ -1427,8 +1451,6 @@ export const generateCombinedHTML = (cmh, filesData) => {
         
         window.updateNavigation = function() {
             const currentIndex = tabs.indexOf(window.currentTab);
-            document.getElementById('prevBtn').disabled = currentIndex === 0;
-            document.getElementById('nextBtn').disabled = currentIndex === tabs.length - 1;
             
             if (window.currentTab === 'resume') {
                 document.getElementById('currentReport').textContent = 'Resume Overview';

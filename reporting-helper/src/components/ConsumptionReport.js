@@ -414,7 +414,7 @@ const ConsumptionReport = () => {
             >
               <option value="cmh1">CMH 1</option>
               <option value="cmh2">CMH 2</option>
-              <option value="cmh3">CMH 3</option>
+              <option value="cmh3">CMH 8</option>
             </select>
           </div>
           

@@ -8,6 +8,7 @@ const PlanGenerator = () => {
   const [generatedPlanRows, setGeneratedPlanRows] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [statusType, setStatusType] = useState('');
+  const [showWarning, setShowWarning] = useState(true);
 
   // State for parsed data
   const [steps, setSteps] = useState([]);
@@ -311,10 +312,7 @@ const PlanGenerator = () => {
     if (proposedEnd > limit) {
       // The interval would exceed the limit
       if (currentStart <= limit) {
-        // Create an interval that ends exactly at the limit
-        const limitedEnd = limit;
-        const intervalStr = `${currentStart}-${limitedEnd}`;
-
+  // Interval would end at limit; proceed to calculate next start
         // Calculate the next start position after hitting the limit
         let nextStart = 1; // Restart from 1 after hitting limit
         nextStart = findNextValidStart(nextStart, sessionIdx); // Skip any pauses at 1
@@ -439,6 +437,43 @@ const PlanGenerator = () => {
 
   return (
     <div className="plan-generator">
+      {showWarning && (
+        <div
+          role="alert"
+          aria-live="polite"
+          style={{
+            background: 'linear-gradient(90deg, #fff7ed, #fff1f2)',
+            border: '1px solid rgba(255,99,71,0.18)',
+            color: '#7f1d1d',
+            padding: '12px 16px',
+            borderRadius: 8,
+            marginBottom: 12,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div style={{ fontSize: 14 }}>
+            <strong style={{ marginRight: 8 }}>Notice — Page currently unusable:</strong>
+            This page is temporarily unavailable. The team is aware and working on a fix.
+          </div>
+          <div>
+            <button
+              onClick={() => setShowWarning(false)}
+              aria-label="Dismiss warning"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#7f1d1d',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
       <div className="instructions">
         <p>
           Paste your 'Yesterday's plan + steps + sessions names + intervals + limits + paused intervals.'

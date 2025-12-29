@@ -165,6 +165,18 @@ CMH1_P_IP_4,296,RECHECK_PLS,thakris5566@gmail.com ,06-11-2025 11-43`;
       });
   };
 
+  // Copy all intervals to clipboard
+  const copyAllIntervals = (sessionName, allNumbers) => {
+    navigator.clipboard.writeText(allNumbers.join('\n'))
+      .then(() => {
+        showNotification(`Copied all ${allNumbers.length} intervals from ${sessionName}`);
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+        showNotification('Failed to copy to clipboard', 'error');
+      });
+  };
+
   return (
     <section id="session-section" className="content-section active">
       <div className="container">
@@ -226,6 +238,7 @@ CMH1_P_IP_4,296,RECHECK_PLS,thakris5566@gmail.com ,06-11-2025 11-43`;
                   sessionName={sessionName}
                   numbers={sessions[sessionName]}
                   onCopyGroup={copyGroup}
+                  onCopyAllIntervals={copyAllIntervals}
                 />
               ))
             )}
@@ -239,7 +252,7 @@ CMH1_P_IP_4,296,RECHECK_PLS,thakris5566@gmail.com ,06-11-2025 11-43`;
 };
 
 // Individual Session Group Component
-const SessionGroup = ({ sessionName, numbers, onCopyGroup }) => {
+const SessionGroup = ({ sessionName, numbers, onCopyGroup, onCopyAllIntervals }) => {
   const [currentGroup, setCurrentGroup] = useState(0);
   const carouselRef = useRef(null);
 
@@ -372,6 +385,17 @@ const SessionGroup = ({ sessionName, numbers, onCopyGroup }) => {
           <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" strokeWidth="2"/>
         </svg>
         Copy Current Group
+      </button>
+
+      <button 
+        className="session-copy-btn"
+        onClick={() => onCopyAllIntervals(sessionName, numbers)}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2"/>
+          <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" strokeWidth="2"/>
+        </svg>
+        Copy All Intervals
       </button>
     </div>
   );
